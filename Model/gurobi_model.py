@@ -1,6 +1,7 @@
 from gurobipy import *
 from fixed_file_variables import *
 from dynamic_file_variables import *
+from visualize import draw_routes
 
 f = FixedFileVariables()
 d = DynamicFileVariables()
@@ -75,11 +76,29 @@ try:
     m.addConstrs(l_V[(j, v)] - l_V[(i, v)] - q[(i, v)] + M * (
             1 - x[(i, j, v)]) >= 0 for i in Stations for j in Stations for v in Vehicles)
 
-    # ------- OBJECTIVE ----------
+    # Station Loading Constraints
+    m.addConstrs(l_F[i]-init_flat_station_load[i] - incoming_flat_rate[i] * t[i] == 0 for i in Stations[1:-1])
+    m.addConstrs(l_B[i] - init_station_load[i] - (
+            incoming_rate[i] - demand[i])*t[i] - v_S[i] == 0 for i in Stations[1:-1])
+    m.addConstrs(q.sum(i, '*') <= l_F[i] for i in Stations[1:-1])
+    m.addConstrs(q[(j, v)]-vehicle_cap[v] * x.sum('*', j, '*') <= 0 for j in Stations[1:-1] for v in Vehicles)
+
+    # ------- VIOLATION CONSTRAINTS ------------------------------------------------------------------
+    """
+    Add constraints from violations and deviations here
+    """
+
+    # ------- OBJECTIVE ------------------------------------------------------------------------------
     m.setObjective(x.sum('*', '*', '*'), GRB.MAXIMIZE)
     m.optimize()
+    route_dict = {}
     for v in m.getVars():
-        print(v.varName, v.x)
+        if v.varName[0] == 'x' and v.x == 1:
+            if int(v.varName[-2]) not in route_dict.keys():
+                route_dict[int(v.varName[-2])] = [(int(v.varName[2]), int(v.varName[4]))]
+            else:
+                route_dict[int(v.varName[-2])].append((int(v.varName[2]), int(v.varName[4])))
+    draw_routes(route_dict, Stations)
     print("Obj: ", m.objVal)
 
 except GurobiError:
