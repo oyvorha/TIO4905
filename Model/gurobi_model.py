@@ -55,7 +55,11 @@ try:
             if j != start_stations[v]:
                 m.addConstr(x.sum('*', j, v) - x.sum(j, '*', v) == 0)
     m.addConstrs(x.sum('*', j, '*') <= 1 for j in Stations[1:-1])
+    for v in Vehicles:
+        if start_stations[v] != 0:
+            m.addConstr(x.sum('*', start_stations[v], '*') == 0)
     m.addConstrs(x.sum('*', 0, v) <= 1 for v in Vehicles)
+    m.addConstrs(x.sum('*', '*', v) <= (len(Stations)-1) for v in Vehicles)
 
     # Time Constraints
     m.addConstrs(t[i] + parking_time + handling_time * q.sum(i, '*') + driving_times[i][j]
@@ -84,9 +88,7 @@ try:
     m.addConstrs(q[(j, v)]-vehicle_cap[v] * x.sum('*', j, '*') <= 0 for j in Stations[1:-1] for v in Vehicles)
 
     # ------- VIOLATION CONSTRAINTS ------------------------------------------------------------------
-    """
-    Add constraints from violations and deviations here
-    """
+    # Add constraints from violations and deviations here
 
     # ------- OBJECTIVE ------------------------------------------------------------------------------
     m.setObjective(x.sum('*', '*', '*'), GRB.MAXIMIZE)
