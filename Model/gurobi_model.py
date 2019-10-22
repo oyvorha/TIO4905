@@ -96,11 +96,22 @@ try:
     route_dict = {}
     for v in m.getVars():
         if v.varName[0] == 'x' and v.x == 1:
+            t = float(m.getVarByName("t[{}]".format(v.varName[2])).x)
+            dist = driving_times[int(v.varName[2])][int(v.varName[4])]
+            arch = [int(v.varName[2]), int(v.varName[4]), t, dist]
             if int(v.varName[-2]) not in route_dict.keys():
-                route_dict[int(v.varName[-2])] = [(int(v.varName[2]), int(v.varName[4]))]
+                route_dict[int(v.varName[-2])] = [arch]
             else:
-                route_dict[int(v.varName[-2])].append((int(v.varName[2]), int(v.varName[4])))
+                route = route_dict[int(v.varName[-2])]
+                for i in range(len(route)):
+                    if route[i][-1] > t:
+                        route.insert(i, arch)
+                        break
+                    else:
+                        if i == len(route_dict[int(v.varName[-2])])-1:
+                            route.append(arch)
     draw_routes(route_dict, Stations)
+    print(route_dict)
     print("Obj: ", m.objVal)
 
 except GurobiError:
