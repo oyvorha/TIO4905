@@ -41,10 +41,16 @@ try:
     l_B = m.addVars({i for i in Stations}, vtype=GRB.INTEGER, lb=0, name="l_B")
     l_F = m.addVars({i for i in Stations}, vtype=GRB.INTEGER, lb=0, name="l_F")
     l_V = m.addVars({(i, v) for i in Stations for v in Vehicles}, vtype=GRB.INTEGER, lb=0, name="l_V")
-    s_I = m.addVars({i for i in Stations}, vtype=GRB.INTEGER, lb=0, name="s_I")
+    s_B = m.addVars({i for i in Stations}, vtype=GRB.INTEGER, lb=0, name="s_B")
+    s_F = m.addVars({i for i in Stations}, vtype=GRB.INTEGER, lb=0, name="s_F")
     s_V = m.addVars({v for v in Vehicles}, vtype=GRB.INTEGER, lb=0, name="s_V")
     v_S = m.addVars({i for i in Stations}, vtype=GRB.INTEGER, lb=0, name="v")
     d = m.addVars({i for i in Stations}, vtype=GRB.CONTINUOUS, lb=0, name="d")
+    delta = m.addVars({i for i in Stations}, vtype=GRB.BINARY, name="delta")
+    gamma = m.addVars({i for i in Stations}, vtype=GRB.BINARY, name="gamma")
+    v_Sf = m.addVars({i for i in Stations}, vtype=GRB.CONTINUOUS, name="v_Sf")
+    v_SF = m.addVars({i for i in Stations}, vtype=GRB.CONTINUOUS, name="v_SF")
+    omega = m.addVars({i for i in Stations}, vtype=GRB.BINARY, name="omega")
 
     # ------- FEASIBILITY CONSTRAINTS ----------------------------------------------------------
     # Routing constraints
