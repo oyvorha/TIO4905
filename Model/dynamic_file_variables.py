@@ -9,6 +9,6 @@ class DynamicFileVariables:
         self.ideal_state = [0, 5, 5, 5, 0]
         self.driving_to_start = [2, 1]
         self.demand = [0, 5, 3, 8, 0]
-        self.incoming_rate = 0.5
-        self.incoming_flat_rate = 0.8
+        self.incoming_rate = [0, 0.5, 0.2, 0.5, 0]
+        self.incoming_flat_rate = [0, 1, 0.8, 0.4, 0]
 

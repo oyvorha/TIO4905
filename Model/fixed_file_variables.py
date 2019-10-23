@@ -12,30 +12,3 @@ class FixedFileVariables:
         self.parking_time = 1
         self.handling_time = 1
         self.M = 100
-
-    def get_stations(self):
-        return self.stations
-
-    def get_vehicles(self):
-        return self.vehicles
-
-    def get_time_horizon(self):
-        return self.time_horizon
-
-    def get_vehicle_cap(self):
-        return self.vehicle_cap
-
-    def get_station_cap(self):
-        return self.station_cap
-
-    def get_driving_times(self):
-        return self.driving_times
-
-    def get_parking_time(self):
-        return self.parking_time
-
-    def get_handling_time(self):
-        return self.handling_time
-
-    def get_M(self):
-        return self.M
