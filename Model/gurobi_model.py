@@ -94,7 +94,44 @@ try:
     m.addConstrs(q[(j, v)]-vehicle_cap[v] * x.sum('*', j, '*') <= 0 for j in Stations[1:-1] for v in Vehicles)
 
     # ------- VIOLATION CONSTRAINTS ------------------------------------------------------------------
-    # Add constraints from violations and deviations here
+    m.addConstrs(t[i] <= time_horizon + M * delta[i] for i in Stations[1:])
+    m.addConstrs(t[i] >= time_horizon * delta[i] for i in Stations[1:-1])
+    m.addConstrs(gamma[i] == x.sum(i, '*', '*') for i in Stations[1:-1])
+    m.addConstrs(-s_B[i] <= init_station_load[i] + (incoming_flat_rate[i] - demand[i]
+                                                    ) * time_horizon + v_Sf[i] + M * gamma[i] for i in Stations[1:-1])
+    m.addConstrs(-s_B[i] >= init_station_load[i] + (incoming_flat_rate[i] - demand[i]
+                                                    ) * time_horizon + v_Sf[i] - M * gamma[i] for i in Stations[1:-1])
+    m.addConstrs(-s_F[i] <= init_flat_station_load[i] +
+                 incoming_flat_rate[i] * time_horizon + M * gamma[i] for i in Stations[1:-1])
+    m.addConstrs(-s_F[i] >= init_flat_station_load[i] +
+                 incoming_flat_rate[i] * time_horizon - M * gamma[i] for i in Stations[1:-1])
+    m.addConstrs(s_B[i] <= l_B[i] + q.sum(i, '*') + (incoming_rate[i]-demand[i]) * (
+                time_horizon - t[i]) + v_Sf[i] + M * delta[i] for i in Stations[1:-1])
+    m.addConstrs(s_B[i] >= l_B[i] + q.sum(i, '*') + (incoming_rate[i] - demand[i]) * (
+                time_horizon - t[i]) + v_Sf[i] - M * delta[i] for i in Stations[1:-1])
+    m.addConstrs(s_F[i] <= l_F[i] - q.sum(i, '*') + incoming_flat_rate[i] * (
+                time_horizon - t[i]) + M * delta[i] for i in Stations[1:-1])
+    m.addConstrs(s_F[i] >= l_F[i] - q.sum(i, '*') + incoming_flat_rate[i] * (
+                time_horizon - t[i]) - M * delta[i] for i in Stations[1:-1])
+
+    # Situation 3
+    m.addConstrs(s_B[i] <= l_B[i] + (incoming_rate[i] - demand[i]) * (
+                t[i] - time_horizon) - v_SF[i] + M * (1 - delta[i]) for i in Stations[1:-1])
+    m.addConstrs(s_B[i] >= l_B[i] + (incoming_rate[i] - demand[i]) * (
+            t[i] - time_horizon) - v_SF[i] - M * (1 - delta[i]) for i in Stations[1:-1])
+    m.addConstrs(s_F[i] <= l_F[i] + incoming_flat_rate[i] * (t[i]-time_horizon) + M * (1 - delta[i]
+                                                                                       ) for i in Stations[1:-1])
+    m.addConstrs(s_F[i] >= l_F[i] + incoming_flat_rate[i] * (t[i] - time_horizon) - M * (1 - delta[i]
+                                                                                         ) for i in Stations[1:-1])
+    m.addConstrs(s_B[i] + station_cap[i] * omega[i] <= station_cap[i] for i in Stations[1:-1])
+    m.addConstrs(1 - omega[i] <= s_B[i] for i in Stations[1:-1])
+    m.addConstrs((v_S[i]-v_SF[i]) - M * (omega[i] - delta[i] + 1) <= 0 for i in Stations[1:-1])
+    m.addConstrs(v_SF[i] <= M * delta[i] for i in Stations[1:-1])
+    m.addConstrs(v_SF[i] - M * (1 - delta[i]) <= v_S[i] for i in Stations[1:-1])
+
+    # ------- DEVIATIONS -----------------------------------------------------------------------------
+    m.addConstrs(d[i] >= ideal_state[i] - s_B[i] for i in Stations[1:-1])
+    m.addConstrs(d[i] <= s_B[i] - ideal_state[i] for i in Stations[1:-1])
 
     # ------- OBJECTIVE ------------------------------------------------------------------------------
     m.setObjective(x.sum('*', '*', '*'), GRB.MAXIMIZE)
