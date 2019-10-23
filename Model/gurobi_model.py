@@ -147,7 +147,7 @@ try:
             else:
                 route = route_dict[int(v.varName[-2])]
                 for i in range(len(route)):
-                    if route[i][-1] > t:
+                    if route[i][-2] > t:
                         route.insert(i, arch)
                         break
                     else:
