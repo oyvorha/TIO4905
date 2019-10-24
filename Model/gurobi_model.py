@@ -116,7 +116,7 @@ try:
     m.addConstrs(s_F[i] >= l_F[i] - q.sum(i, '*') + incoming_flat_rate[i] * (
                 time_horizon - t[i]) - M * delta[i] for i in Stations[1:-1])
 
-    """
+
     # Situation 3
     m.addConstrs(s_B[i] <= l_B[i] + (incoming_rate[i] - demand[i]) * (
                 t[i] - time_horizon) - v_SF[i] + M * (1 - delta[i]) for i in Stations[1:-1])
@@ -134,8 +134,7 @@ try:
 
     # ------- DEVIATIONS -----------------------------------------------------------------------------
     m.addConstrs(d[i] >= ideal_state[i] - s_B[i] for i in Stations[1:-1])
-    m.addConstrs(d[i] <= s_B[i] - ideal_state[i] for i in Stations[1:-1])
-    """
+    m.addConstrs(d[i] >= s_B[i] - ideal_state[i] for i in Stations[1:-1])
 
     # ------- OBJECTIVE ------------------------------------------------------------------------------
     m.setObjective(v_S.sum('*')+v_SF.sum('*')+v_Sf.sum('*'), GRB.MINIMIZE)
