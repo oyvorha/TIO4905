@@ -38,13 +38,13 @@ try:
                      for j in Stations for v in Vehicles}, vtype=GRB.BINARY, lb=0, name="x")
     t = m.addVars({i for i in Stations}, vtype=GRB.CONTINUOUS, lb=0, name="t")
     q = m.addVars({(i, v) for i in Stations for v in Vehicles}, vtype=GRB.INTEGER, lb=0, name="q")
-    l_B = m.addVars({i for i in Stations}, vtype=GRB.INTEGER, lb=0, name="l_B")
-    l_F = m.addVars({i for i in Stations}, vtype=GRB.INTEGER, lb=0, name="l_F")
+    l_B = m.addVars({i for i in Stations}, vtype=GRB.CONTINUOUS, lb=0, name="l_B")
+    l_F = m.addVars({i for i in Stations}, vtype=GRB.CONTINUOUS, lb=0, name="l_F")
     l_V = m.addVars({(i, v) for i in Stations for v in Vehicles}, vtype=GRB.INTEGER, lb=0, name="l_V")
-    s_B = m.addVars({i for i in Stations}, vtype=GRB.INTEGER, lb=0, name="s_B")
-    s_F = m.addVars({i for i in Stations}, vtype=GRB.INTEGER, lb=0, name="s_F")
-    s_V = m.addVars({v for v in Vehicles}, vtype=GRB.INTEGER, lb=0, name="s_V")
-    v_S = m.addVars({i for i in Stations}, vtype=GRB.INTEGER, lb=0, name="v")
+    s_B = m.addVars({i for i in Stations}, vtype=GRB.CONTINUOUS, lb=0, name="s_B")
+    s_F = m.addVars({i for i in Stations}, vtype=GRB.CONTINUOUS, lb=0, name="s_F")
+    s_V = m.addVars({v for v in Vehicles}, vtype=GRB.CONTINUOUS, lb=0, name="s_V")
+    v_S = m.addVars({i for i in Stations}, vtype=GRB.CONTINUOUS, lb=0, name="v_S")
     d = m.addVars({i for i in Stations}, vtype=GRB.CONTINUOUS, lb=0, name="d")
     delta = m.addVars({i for i in Stations}, vtype=GRB.BINARY, name="delta")
     gamma = m.addVars({i for i in Stations}, vtype=GRB.BINARY, name="gamma")
@@ -61,15 +61,14 @@ try:
             if j != start_stations[v]:
                 m.addConstr(x.sum('*', j, v) - x.sum(j, '*', v) == 0)
     m.addConstrs(x.sum('*', j, '*') <= 1 for j in Stations[1:-1])
-    for v in Vehicles:
-        if start_stations[v] != 0:
-            m.addConstr(x.sum('*', start_stations[v], '*') == 0)
     m.addConstrs(x.sum('*', 0, v) <= 1 for v in Vehicles)
     m.addConstrs(x.sum('*', '*', v) <= (len(Stations)-1) for v in Vehicles)
 
     # Time Constraints
     m.addConstrs(t[i] + parking_time + handling_time * q.sum(i, '*') + driving_times[i][j]
-                 - t[j] - time_horizon * (1-x.sum(i, j, '*')) <= 0 for i in Stations for j in Stations[:-1])
+                 - t[j] - M * (1-x.sum(i, j, '*')) <= 0 for i in Stations for j in Stations)
+    m.addConstrs(t[i] + parking_time + handling_time * q.sum(i, '*') + driving_times[i][j]
+                 - t[j] + M * (1 - x.sum(i, j, '*')) >= 0 for i in Stations for j in Stations)
     m.addConstrs(t[start_stations[v]] >= driving_to_start[v] for v in Vehicles)
     m.addConstrs(t[i] - time_horizon - M * x.sum(i, Stations[-1], '*') <= 0 for i in Stations[:-1])
     m.addConstrs(t[i]-time_horizon - M * x.sum(i, '*', '*') <= 0 for i in Stations[:-1])
@@ -78,33 +77,34 @@ try:
     m.addConstrs(q[(i, v)] <= l_V[(i, v)] for i in Stations[1:-1] for v in Vehicles)
     m.addConstrs(l_V[(start_stations[v], v)] == init_vehicle_load[v] for v in Vehicles)
     m.addConstrs(
-        l_V[(j, v)] - vehicle_cap[v] - M * (1-x[(Stations[-1], j, v)]) <= 0 for j in Stations for v in Vehicles)
+        l_V[(j, v)] - vehicle_cap[v] - M * (1-x[(Stations[0], j, v)]) <= 0 for j in Stations for v in Vehicles)
     m.addConstrs(
-        l_V[(j, v)] - vehicle_cap[v] + M * (1 - x[(Stations[-1], j, v)]) >= 0 for j in Stations for v in Vehicles)
-    m.addConstrs(l_V[(j, v)] - l_V[(i, v)] - q[(i, v)] - M * (
-            1 - x[(i, j, v)]) <= 0 for i in Stations for j in Stations for v in Vehicles)
-    m.addConstrs(l_V[(j, v)] - l_V[(i, v)] - q[(i, v)] + M * (
-            1 - x[(i, j, v)]) >= 0 for i in Stations for j in Stations for v in Vehicles)
+        l_V[(j, v)] - vehicle_cap[v] + M * (1 - x[(Stations[0], j, v)]) >= 0 for j in Stations for v in Vehicles)
+    m.addConstrs(l_V[(j, v)] - l_V[(i, v)] + q[(i, v)] - M * (
+            1 - x[(i, j, v)]) <= 0 for i in Stations[1:] for j in Stations[1:] for v in Vehicles)
+    m.addConstrs(l_V[(j, v)] - l_V[(i, v)] + q[(i, v)] + M * (
+            1 - x[(i, j, v)]) >= 0 for i in Stations[1:] for j in Stations[1:] for v in Vehicles)
 
     # Station Loading Constraints
-    m.addConstrs(l_F[i]-init_flat_station_load[i] - incoming_flat_rate[i] * t[i] == 0 for i in Stations[1:-1])
-    m.addConstrs(l_B[i] - init_station_load[i] - (
-            incoming_rate[i] - demand[i])*t[i] - v_S[i] == 0 for i in Stations[1:-1])
+    m.addConstrs(l_F[i] == init_flat_station_load[i] + incoming_flat_rate[i] * t[i] for i in Stations[1:-1])
+    m.addConstrs(l_B[i] == init_station_load[i] + (
+            incoming_rate[i] - demand[i])*t[i] + v_S[i] for i in Stations[1:-1])
     m.addConstrs(q.sum(i, '*') <= l_F[i] for i in Stations[1:-1])
-    m.addConstrs(q[(j, v)]-vehicle_cap[v] * x.sum('*', j, '*') <= 0 for j in Stations[1:-1] for v in Vehicles)
+    m.addConstrs(q[(j, v)] - vehicle_cap[v] * x.sum('*', j, v) <= 0 for j in Stations[1:-1] for v in Vehicles)
+    m.addConstrs()
 
     # ------- VIOLATION CONSTRAINTS ------------------------------------------------------------------
     m.addConstrs(t[i] <= time_horizon + M * delta[i] for i in Stations[1:])
-    m.addConstrs(t[i] >= time_horizon * delta[i] for i in Stations[1:-1])
-    m.addConstrs(gamma[i] == x.sum(i, '*', '*') for i in Stations[1:-1])
-    m.addConstrs(-s_B[i] <= init_station_load[i] + (incoming_flat_rate[i] - demand[i]
-                                                    ) * time_horizon + v_Sf[i] + M * gamma[i] for i in Stations[1:-1])
-    m.addConstrs(-s_B[i] >= init_station_load[i] + (incoming_flat_rate[i] - demand[i]
-                                                    ) * time_horizon + v_Sf[i] - M * gamma[i] for i in Stations[1:-1])
-    m.addConstrs(-s_F[i] <= init_flat_station_load[i] +
-                 incoming_flat_rate[i] * time_horizon + M * gamma[i] for i in Stations[1:-1])
-    m.addConstrs(-s_F[i] >= init_flat_station_load[i] +
-                 incoming_flat_rate[i] * time_horizon - M * gamma[i] for i in Stations[1:-1])
+    m.addConstrs(t[i] >= time_horizon * delta[i] for i in Stations[1:])
+    m.addConstrs(gamma[i] == x.sum(i, '*', '*') for i in Stations[1:])
+    m.addConstrs(s_B[i] <= init_station_load[i] + (incoming_flat_rate[i] - demand[i]
+                                                    ) * time_horizon + v_Sf[i] + M * gamma[i] for i in Stations[1:])
+    m.addConstrs(s_B[i] >= init_station_load[i] + (incoming_flat_rate[i] - demand[i]
+                                                    ) * time_horizon + v_Sf[i] - M * gamma[i] for i in Stations[1:])
+    m.addConstrs(s_F[i] <= init_flat_station_load[i] +
+                 incoming_flat_rate[i] * time_horizon + M * gamma[i] for i in Stations[1:])
+    m.addConstrs(s_F[i] >= init_flat_station_load[i] +
+                 incoming_flat_rate[i] * time_horizon - M * gamma[i] for i in Stations[1:])
     m.addConstrs(s_B[i] <= l_B[i] + q.sum(i, '*') + (incoming_rate[i]-demand[i]) * (
                 time_horizon - t[i]) + v_Sf[i] + M * delta[i] for i in Stations[1:-1])
     m.addConstrs(s_B[i] >= l_B[i] + q.sum(i, '*') + (incoming_rate[i] - demand[i]) * (
@@ -132,9 +132,11 @@ try:
     # ------- DEVIATIONS -----------------------------------------------------------------------------
     m.addConstrs(d[i] >= ideal_state[i] - s_B[i] for i in Stations[1:-1])
     m.addConstrs(d[i] <= s_B[i] - ideal_state[i] for i in Stations[1:-1])
+    """
 
     # ------- OBJECTIVE ------------------------------------------------------------------------------
-    m.setObjective(x.sum('*', '*', '*'), GRB.MAXIMIZE)
+    m.setObjective(v_S.sum('*')+v_SF.sum('*')+v_Sf.sum('*'), GRB.MINIMIZE)
+    # m.setObjective(x.sum('*', '*', '*'), GRB.MAXIMIZE)
     m.optimize()
     route_dict = {}
     for v in m.getVars():
@@ -153,6 +155,7 @@ try:
                     else:
                         if i == len(route_dict[int(v.varName[-2])])-1:
                             route.append(arch)
+        print(v.varName, v.x)
     draw_routes(route_dict, Stations)
     print(route_dict)
     print("Obj: ", m.objVal)
