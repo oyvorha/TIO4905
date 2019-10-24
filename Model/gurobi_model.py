@@ -132,9 +132,11 @@ try:
     # ------- DEVIATIONS -----------------------------------------------------------------------------
     m.addConstrs(d[i] >= ideal_state[i] - s_B[i] for i in Stations[1:-1])
     m.addConstrs(d[i] <= s_B[i] - ideal_state[i] for i in Stations[1:-1])
+    """
 
     # ------- OBJECTIVE ------------------------------------------------------------------------------
-    m.setObjective(x.sum('*', '*', '*'), GRB.MAXIMIZE)
+    m.setObjective(v_S.sum('*')+v_SF.sum('*')+v_Sf.sum('*'), GRB.MINIMIZE)
+    # m.setObjective(x.sum('*', '*', '*'), GRB.MAXIMIZE)
     m.optimize()
     route_dict = {}
     for v in m.getVars():
@@ -153,6 +155,7 @@ try:
                     else:
                         if i == len(route_dict[int(v.varName[-2])])-1:
                             route.append(arch)
+        print(v.varName, v.x)
     draw_routes(route_dict, Stations)
     print(route_dict)
     print("Obj: ", m.objVal)
