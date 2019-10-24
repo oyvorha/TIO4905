@@ -51,6 +51,7 @@ try:
     v_Sf = m.addVars({i for i in Stations}, vtype=GRB.CONTINUOUS, name="v_Sf")
     v_SF = m.addVars({i for i in Stations}, vtype=GRB.CONTINUOUS, name="v_SF")
     omega = m.addVars({i for i in Stations}, vtype=GRB.BINARY, name="omega")
+    lam = m.addVars({i for i in Stations}, vtype=GRB.BINARY, name="lam")
 
     # ------- FEASIBILITY CONSTRAINTS ----------------------------------------------------------
     # Routing constraints
@@ -91,7 +92,8 @@ try:
             incoming_rate[i] - demand[i])*t[i] + v_S[i] for i in Stations[1:-1])
     m.addConstrs(q.sum(i, '*') <= l_F[i] for i in Stations[1:-1])
     m.addConstrs(q[(j, v)] - vehicle_cap[v] * x.sum('*', j, v) <= 0 for j in Stations[1:-1] for v in Vehicles)
-    m.addConstrs()
+    m.addConstrs(l_B[i] - M * (1 - lam[i]) <= 0 for i in Stations[1:])
+    m.addConstrs(l_B[i] + (incoming_flat_rate[i] - demand[i]) * t[i] + v_S[i] - M * lam[i] <= 0 for i in Stations[1:])
 
     # ------- VIOLATION CONSTRAINTS ------------------------------------------------------------------
     m.addConstrs(t[i] <= time_horizon + M * delta[i] for i in Stations[1:])
@@ -114,6 +116,7 @@ try:
     m.addConstrs(s_F[i] >= l_F[i] - q.sum(i, '*') + incoming_flat_rate[i] * (
                 time_horizon - t[i]) - M * delta[i] for i in Stations[1:-1])
 
+    """
     # Situation 3
     m.addConstrs(s_B[i] <= l_B[i] + (incoming_rate[i] - demand[i]) * (
                 t[i] - time_horizon) - v_SF[i] + M * (1 - delta[i]) for i in Stations[1:-1])
