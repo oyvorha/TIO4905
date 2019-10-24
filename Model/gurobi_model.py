@@ -61,15 +61,14 @@ try:
             if j != start_stations[v]:
                 m.addConstr(x.sum('*', j, v) - x.sum(j, '*', v) == 0)
     m.addConstrs(x.sum('*', j, '*') <= 1 for j in Stations[1:-1])
-    for v in Vehicles:
-        if start_stations[v] != 0:
-            m.addConstr(x.sum('*', start_stations[v], '*') == 0)
     m.addConstrs(x.sum('*', 0, v) <= 1 for v in Vehicles)
     m.addConstrs(x.sum('*', '*', v) <= (len(Stations)-1) for v in Vehicles)
 
     # Time Constraints
     m.addConstrs(t[i] + parking_time + handling_time * q.sum(i, '*') + driving_times[i][j]
-                 - t[j] - time_horizon * (1-x.sum(i, j, '*')) <= 0 for i in Stations for j in Stations[:-1])
+                 - t[j] - M * (1-x.sum(i, j, '*')) <= 0 for i in Stations for j in Stations)
+    m.addConstrs(t[i] + parking_time + handling_time * q.sum(i, '*') + driving_times[i][j]
+                 - t[j] + M * (1 - x.sum(i, j, '*')) >= 0 for i in Stations for j in Stations)
     m.addConstrs(t[start_stations[v]] >= driving_to_start[v] for v in Vehicles)
     m.addConstrs(t[i] - time_horizon - M * x.sum(i, Stations[-1], '*') <= 0 for i in Stations[:-1])
     m.addConstrs(t[i]-time_horizon - M * x.sum(i, '*', '*') <= 0 for i in Stations[:-1])
