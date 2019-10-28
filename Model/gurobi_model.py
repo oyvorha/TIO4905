@@ -84,7 +84,7 @@ try:
                  - t[j] + M * (1 - x.sum(i, j, '*')) >= 0 for i in Stations for j in Stations)
     m.addConstrs(t[start_stations[v]] >= driving_to_start[v] for v in Vehicles)
     m.addConstrs(t[i] - time_horizon - M * x.sum(i, Stations[-1], '*') <= 0 for i in Stations[:-1])
-    m.addConstrs(t[i]-time_horizon - M * x.sum(i, '*', '*') <= 0 for i in Stations[:-1])
+    m.addConstrs(t[i] - M * x.sum(i, '*', '*') <= 0 for i in Stations[:-1])
 
     # Vehicle Loading Constraints
     m.addConstrs(q[(i, v)] <= l_V[(i, v)] for i in Stations[1:-1] for v in Vehicles)
