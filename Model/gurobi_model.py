@@ -125,7 +125,6 @@ try:
     m.addConstrs(s_F[i] >= l_F[i] - q.sum(i, '*') + incoming_flat_rate[i] * (
                 time_horizon - t[i]) - M * delta[i] for i in Stations[1:-1])
 
-
     # Situation 3
     m.addConstrs(s_B[i] <= l_B[i] + (incoming_rate[i] - demand[i]) * (
                 t[i] - time_horizon) - v_SF[i] + M * (1 - delta[i]) for i in Stations[1:-1])
@@ -145,10 +144,29 @@ try:
     m.addConstrs(d[i] >= ideal_state[i] - s_B[i] for i in Stations[1:-1])
     m.addConstrs(d[i] >= s_B[i] - ideal_state[i] for i in Stations[1:-1])
 
+    # ------- OBJECTIVE CONSTRAINTS ------------------------------------------------------------------
+    m.addConstrs(s_V[v] <= l_V[(i, v)] + (2 - delta[j] + delta[i] - x[(i, j, v)]) * vehicle_cap[v]
+                 for i in Stations for j in Stations for v in Vehicles)
+    m.addConstrs(s_V[v] >= l_V[(i, v)] - (2 - delta[j] + delta[i] - x[(i, j, v)]) * vehicle_cap[v]
+                 for i in Stations for j in Stations for v in Vehicles)
+    m.addConstrs(r_D[i] <= d[i] + station_cap[i] * (1 - delta[i]) for i in Stations for j in Stations for v in Vehicles)
+    m.addConstrs(r_D[i] <= delta[i] * station_cap[i] for i in Stations)
+    m.addConstrs(s_V[v] <= I_V + I_V * sigma_V[v] for v in Vehicles)
+    m.addConstrs(s_B[i] <= I_B + I_B * sigma_B[i] for i in Stations[1:-1])
+    m.addConstrs(x[(i, Stations[-1], v)] <= 2 - sigma_V[v] - delta[i] for i in Stations for v in Vehicles)
+    m.addConstrs(x[(i, Stations[-1], v)] <= 2 - sigma_B[v] - delta[i] for i in Stations for v in Vehicles)
+    m.addConstr(r_D[Stations[-1]] <= 0)
+    m.addConstrs(t_f[v] - t[i] + time_horizon - M * (1 - x[(i, Stations[-1], v)]) <= 0
+                 for i in Stations for v in Vehicles)
+    m.addConstrs(t_f[v] - t[i] + time_horizon + M * (1 - x[(i, Stations[-1], v)]) >= 0
+                 for i in Stations for v in Vehicles)
+
     # ------- OBJECTIVE ------------------------------------------------------------------------------
-    m.setObjective(v_S.sum('*')+v_SF.sum('*')+v_Sf.sum('*'), GRB.MINIMIZE)
-    # m.setObjective(x.sum('*', '*', '*'), GRB.MAXIMIZE)
+    m.setObjective((v_S.sum('*')+v_SF.sum('*')+v_Sf.sum('*')) + w_dev * d.sum('*')
+                   + (w_driving_times * r_D.sum('*') - t_f.sum('*')), GRB.MINIMIZE)
     m.optimize()
+
+    # ------- VISUALIZE ------------------------------------------------------------------------------
     route_dict = {}
     for v in m.getVars():
         if v.varName[0] == 'x' and v.x == 1:
