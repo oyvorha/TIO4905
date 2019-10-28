@@ -21,6 +21,10 @@ try:
     parking_time = f.parking_time
     handling_time = f.handling_time
     M = f.M
+    I_B = f.I_B
+    I_V = f.I_V
+    w_dev = f.w_dev
+    w_driving_times = f.w_driving_time
 
     # ------- DYNAMIC PARAMETERS --------------------------------------------------------------
     start_stations = d.start_stations
