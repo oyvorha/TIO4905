@@ -23,8 +23,11 @@ try:
     M = f.M
     I_B = f.I_B
     I_V = f.I_V
-    w_dev = f.w_dev
+    w_dev_reward = f.w_dev_reward
     w_driving_times = f.w_driving_time
+    w_dev_obj = f.w_dev_obj
+    w_reward = f.w_reward
+    w_violation = f.w_violation
 
     # ------- DYNAMIC PARAMETERS --------------------------------------------------------------
     start_stations = d.start_stations
@@ -162,8 +165,8 @@ try:
                  for i in Stations for v in Vehicles)
 
     # ------- OBJECTIVE ------------------------------------------------------------------------------
-    m.setObjective((v_S.sum('*')+v_SF.sum('*')+v_Sf.sum('*')) + w_dev * d.sum('*')
-                   + (w_driving_times * r_D.sum('*') - t_f.sum('*')), GRB.MINIMIZE)
+    m.setObjective(w_violation * (v_S.sum('*')+v_SF.sum('*')+v_Sf.sum('*')) + w_dev_obj * d.sum('*')
+                   + w_reward * (w_dev_reward * r_D.sum('*') - w_driving_times * t_f.sum('*')), GRB.MINIMIZE)
     m.optimize()
 
     # ------- VISUALIZE ------------------------------------------------------------------------------
