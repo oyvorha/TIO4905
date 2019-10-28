@@ -56,6 +56,11 @@ try:
     v_SF = m.addVars({i for i in Stations}, vtype=GRB.CONTINUOUS, name="v_SF")
     omega = m.addVars({i for i in Stations}, vtype=GRB.BINARY, name="omega")
     lam = m.addVars({i for i in Stations}, vtype=GRB.BINARY, name="lam")
+    s = m.addVars({v for v in Vehicles}, vtype=GRB.CONTINUOUS, lb=0, name="s")
+    r_D = m.addVars({i for i in Stations}, vtype=GRB.CONTINUOUS, lb=0, name="r_D")
+    t_f = m.addVars({v for v in Vehicles}, vtype=GRB.CONTINUOUS, lb=0, name="t_f")
+    sigma_B = m.addVars({i for i in Stations}, vtype=GRB.BINARY, name="sigma_B")
+    sigma_V = m.addVars({v for v in Vehicles}, vtype=GRB.BINARY, name="sigma_V")
 
     # ------- FEASIBILITY CONSTRAINTS ----------------------------------------------------------
     # Routing constraints
