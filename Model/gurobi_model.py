@@ -101,20 +101,20 @@ try:
     # Station Loading Constraints
     m.addConstrs(l_F[i] == init_flat_station_load[i] + incoming_flat_rate[i] * t[i] for i in Stations[1:-1])
     m.addConstrs(l_B[i] == init_station_load[i] + (
-            incoming_rate[i] - demand[i])*t[i] + v_S[i] for i in Stations[1:-1])
+            incoming_rate[i] - demand[i]) * t[i] + v_S[i] for i in Stations[1:-1])
     m.addConstrs(q.sum(i, '*') <= l_F[i] for i in Stations[1:-1])
     m.addConstrs(q[(j, v)] - vehicle_cap[v] * x.sum('*', j, v) <= 0 for j in Stations[1:-1] for v in Vehicles)
     m.addConstrs(l_B[i] - M * (1 - lam[i]) <= 0 for i in Stations[1:])
-    m.addConstrs(l_B[i] + (incoming_flat_rate[i] - demand[i]) * t[i] + v_S[i] - M * lam[i] <= 0 for i in Stations[1:])
+    m.addConstrs(init_station_load[i] + (incoming_flat_rate[i] - demand[i]) * t[i] + v_S[i] - M * lam[i] >= 0 for i in Stations[1:])
 
     # ------- VIOLATION CONSTRAINTS ------------------------------------------------------------------
     m.addConstrs(t[i] <= time_horizon + M * delta[i] for i in Stations[1:])
     m.addConstrs(t[i] >= time_horizon * delta[i] for i in Stations[1:])
     m.addConstrs(gamma[i] == x.sum(i, '*', '*') for i in Stations[1:])
     m.addConstrs(s_B[i] <= init_station_load[i] + (incoming_flat_rate[i] - demand[i]
-                                                    ) * time_horizon + v_Sf[i] + M * gamma[i] for i in Stations[1:])
+                                                    ) * time_horizon + v_Sf[i] + M * gamma[i] for i in Stations[1:-1])
     m.addConstrs(s_B[i] >= init_station_load[i] + (incoming_flat_rate[i] - demand[i]
-                                                    ) * time_horizon + v_Sf[i] - M * gamma[i] for i in Stations[1:])
+                                                    ) * time_horizon + v_Sf[i] - M * gamma[i] for i in Stations[1:-1])
     m.addConstrs(s_F[i] <= init_flat_station_load[i] +
                  incoming_flat_rate[i] * time_horizon + M * gamma[i] for i in Stations[1:])
     m.addConstrs(s_F[i] >= init_flat_station_load[i] +
