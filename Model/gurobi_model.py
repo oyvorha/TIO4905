@@ -140,25 +140,28 @@ try:
     m.addConstrs(s_B[i] + station_cap[i] * omega[i] <= station_cap[i] for i in Stations[1:-1])
     m.addConstrs(1 - omega[i] <= s_B[i] for i in Stations[1:-1])
     m.addConstrs((v_S[i]-v_SF[i]) - M * (omega[i] - delta[i] + 1) <= 0 for i in Stations[1:-1])
+    m.addConstr(delta[0] <= 0)
     m.addConstrs(v_SF[i] <= M * delta[i] for i in Stations[1:-1])
     m.addConstrs(v_SF[i] - M * (1 - delta[i]) <= v_S[i] for i in Stations[1:-1])
 
     # ------- DEVIATIONS -----------------------------------------------------------------------------
     m.addConstrs(d[i] >= ideal_state[i] - s_B[i] for i in Stations[1:-1])
     m.addConstrs(d[i] >= s_B[i] - ideal_state[i] for i in Stations[1:-1])
-
+    
     # ------- OBJECTIVE CONSTRAINTS ------------------------------------------------------------------
     m.addConstrs(s_V[v] <= l_V[(i, v)] + (2 - delta[j] + delta[i] - x[(i, j, v)]) * vehicle_cap[v]
-                 for i in Stations for j in Stations for v in Vehicles)
+                 for i in Stations[1:-1] for j in Stations[1:-1] for v in Vehicles)
     m.addConstrs(s_V[v] >= l_V[(i, v)] - (2 - delta[j] + delta[i] - x[(i, j, v)]) * vehicle_cap[v]
-                 for i in Stations for j in Stations for v in Vehicles)
-    m.addConstrs(r_D[i] <= d[i] + station_cap[i] * (1 - delta[i]) for i in Stations for j in Stations for v in Vehicles)
-    m.addConstrs(r_D[i] <= delta[i] * station_cap[i] for i in Stations)
+                 for i in Stations[1:-1] for j in Stations[1:-1] for v in Vehicles)
+    m.addConstrs(r_D[i] <= d[i] + station_cap[i] * (1 - delta[i])
+                 for i in Stations[1:-1] for j in Stations[1:-1] for v in Vehicles)
+    m.addConstrs(r_D[i] <= delta[i] * station_cap[i] for i in Stations[1:-1])
     m.addConstrs(s_V[v] <= I_V + I_V * sigma_V[v] for v in Vehicles)
     m.addConstrs(s_B[i] <= I_B + I_B * sigma_B[i] for i in Stations[1:-1])
     m.addConstrs(x[(i, Stations[-1], v)] <= 2 - sigma_V[v] - delta[i] for i in Stations for v in Vehicles)
     m.addConstrs(x[(i, Stations[-1], v)] <= 2 - sigma_B[v] - delta[i] for i in Stations for v in Vehicles)
     m.addConstr(r_D[Stations[-1]] <= 0)
+    m.addConstr(r_D[Stations[0]] <= 0)
     m.addConstrs(t_f[v] - t[i] + time_horizon - M * (1 - x[(i, Stations[-1], v)]) <= 0
                  for i in Stations for v in Vehicles)
     m.addConstrs(t_f[v] - t[i] + time_horizon + M * (1 - x[(i, Stations[-1], v)]) >= 0
@@ -166,7 +169,9 @@ try:
 
     # ------- OBJECTIVE ------------------------------------------------------------------------------
     m.setObjective(w_violation * (v_S.sum('*')+v_SF.sum('*')+v_Sf.sum('*')) + w_dev_obj * d.sum('*')
-                   + w_reward * (w_dev_reward * r_D.sum('*') - w_driving_times * t_f.sum('*')), GRB.MINIMIZE)
+                   - w_reward * (w_dev_reward * r_D.sum('*') - w_driving_times * t_f.sum('*')), GRB.MINIMIZE)
+    # m.setObjective(v_S.sum('*')+v_SF.sum('*')+v_Sf.sum('*') + d.sum('*'), GRB.MINIMIZE)
+
     m.optimize()
 
     # ------- VISUALIZE ------------------------------------------------------------------------------
