@@ -95,16 +95,16 @@ try:
     m.addConstrs(l_V[(j, v)] - l_V[(i, v)] + q[(i, v)] - M * (
             1 - x[(i, j, v)]) <= 0 for i in Stations[1:] for j in Stations for v in Vehicles)
     m.addConstrs(l_V[(j, v)] - l_V[(i, v)] + q[(i, v)] + M * (
-            1 - x[(i, j, v)]) >= 0 for i in Stations[1:] for j in Stations[1:] for v in Vehicles)
+            1 - x[(i, j, v)]) >= 0 for i in Stations[1:] for j in Stations for v in Vehicles)
 
     # Station Loading Constraints
     m.addConstrs(l_F[i] == init_flat_station_load[i] + incoming_flat_rate[i] * t[i] for i in Stations[1:-1])
     m.addConstrs(l_B[i] == init_station_load[i] + (
             incoming_rate[i] - demand[i]) * t[i] + v_S[i] for i in Stations[1:-1])
     m.addConstrs(q.sum(i, '*') <= l_F[i] for i in Stations[1:-1])
-    m.addConstrs(q[(j, v)] - vehicle_cap[v] * x.sum('*', j, v) <= 0 for j in Stations[1:-1] for v in Vehicles)
+    m.addConstrs(q[(i, v)] - vehicle_cap[v] * x.sum(i, '*', v) <= 0 for i in Stations[1:-1] for v in Vehicles)
     m.addConstrs(l_B[i] - M * (1 - lam[i]) <= 0 for i in Stations[1:])
-    m.addConstrs(init_station_load[i] + (incoming_flat_rate[i] - demand[i]) * t[i] + v_S[i] - M * lam[i] >= 0 for i in Stations[1:])
+    m.addConstrs(init_station_load[i] + (incoming_flat_rate[i] - demand[i]) * t[i] + M * lam[i] >= 0 for i in Stations[1:])
     m.addConstrs(q[(0, v)] <= 0 for v in Vehicles)
     m.addConstrs(q[(Stations[-1], v)] <= 0 for v in Vehicles)
 
