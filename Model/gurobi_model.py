@@ -106,6 +106,8 @@ try:
     m.addConstrs(q[(j, v)] - vehicle_cap[v] * x.sum('*', j, v) <= 0 for j in Stations[1:-1] for v in Vehicles)
     m.addConstrs(l_B[i] - M * (1 - lam[i]) <= 0 for i in Stations[1:])
     m.addConstrs(init_station_load[i] + (incoming_flat_rate[i] - demand[i]) * t[i] + v_S[i] - M * lam[i] >= 0 for i in Stations[1:])
+    m.addConstrs(q[(0, v)] <= 0 for v in Vehicles)
+    m.addConstrs(q[(Stations[-1], v)] <= 0 for v in Vehicles)
 
     # ------- VIOLATION CONSTRAINTS ------------------------------------------------------------------
     m.addConstrs(t[i] <= time_horizon + M * delta[i] for i in Stations[1:])
