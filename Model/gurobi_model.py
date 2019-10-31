@@ -93,7 +93,7 @@ try:
     m.addConstrs(
         l_V[(j, v)] - vehicle_cap[v] + M * (1 - x[(Stations[0], j, v)]) >= 0 for j in Stations for v in Vehicles)
     m.addConstrs(l_V[(j, v)] - l_V[(i, v)] + q[(i, v)] - M * (
-            1 - x[(i, j, v)]) <= 0 for i in Stations[1:] for j in Stations[1:] for v in Vehicles)
+            1 - x[(i, j, v)]) <= 0 for i in Stations[1:] for j in Stations for v in Vehicles)
     m.addConstrs(l_V[(j, v)] - l_V[(i, v)] + q[(i, v)] + M * (
             1 - x[(i, j, v)]) >= 0 for i in Stations[1:] for j in Stations[1:] for v in Vehicles)
 
