@@ -113,14 +113,18 @@ try:
     m.addConstrs(t[i] >= time_horizon * delta[i] for i in Stations[1:-1])
     m.addConstrs(delta[i] <= x.sum(i, Stations[-1], '*') for i in Stations[:-1])
     m.addConstrs(gamma[i] == x.sum(i, '*', '*') for i in Stations[1:])
+
+    # Situation 1
     m.addConstrs(s_B[i] <= init_station_load[i] + (incoming_flat_rate[i] - demand[i]
                                                     ) * time_horizon + v_Sf[i] + M * gamma[i] for i in Stations[1:-1])
     m.addConstrs(s_B[i] >= init_station_load[i] + (incoming_flat_rate[i] - demand[i]
                                                     ) * time_horizon + v_Sf[i] - M * gamma[i] for i in Stations[1:-1])
     m.addConstrs(s_F[i] <= init_flat_station_load[i] +
-                 incoming_flat_rate[i] * time_horizon + M * gamma[i] for i in Stations[1:])
+                 incoming_flat_rate[i] * time_horizon + M * gamma[i] for i in Stations[1:-1])
     m.addConstrs(s_F[i] >= init_flat_station_load[i] +
-                 incoming_flat_rate[i] * time_horizon - M * gamma[i] for i in Stations[1:])
+                 incoming_flat_rate[i] * time_horizon - M * gamma[i] for i in Stations[1:-1])
+
+    # Situation 2
     m.addConstrs(s_B[i] <= l_B[i] + q.sum(i, '*') + (incoming_rate[i]-demand[i]) * (
                 time_horizon - t[i]) + v_Sf[i] + M * delta[i] for i in Stations[1:-1])
     m.addConstrs(s_B[i] >= l_B[i] + q.sum(i, '*') + (incoming_rate[i] - demand[i]) * (
