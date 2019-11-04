@@ -1,5 +1,5 @@
-from Model.fixed_file_variables import FixedFileVariables
-from Model.dynamic_file_variables import DynamicFileVariables
+from Input.fixed_file_variables import FixedFileVariables
+from Input.dynamic_file_variables import DynamicFileVariables
 import numpy as np
 import random
 
