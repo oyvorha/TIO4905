@@ -7,12 +7,8 @@ class FixedFileVariables:
         self.time_horizon = 10
         self.vehicle_cap = [10, 10]
         self.station_cap = [0, 10, 10, 10, 0]
-        self.driving_times = [[ 0,    1.5,   9.84,  2.96,  5.69,  0],
-                                [1.5, 0, 14.71, 6.11, 5, 0],
-                                [9.84, 14.71, 0, 14.72, 6.87, 0],
-                                [2.96, 6.11, 14.72, 0, 1.85, 0],
-                                [5.69, 5, 6.87, 1.85, 0, 0],
-                                 [0, 0, 0, 0, 0, 0]]
+        self.driving_times = [[0, 3.0, 9.0, 4.0, 0], [3.0, 0, 2.0, 3.1, 0], [9.0, 2.0, 0, 2.1, 0],
+                              [4.0, 3.1, 2.1, 0, 0], [0, 0, 0, 0, 0]]
         self.parking_time = 1
         self.handling_time = 1
         self.M = 10000
