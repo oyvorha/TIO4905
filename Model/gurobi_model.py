@@ -1,10 +1,18 @@
 from gurobipy import *
-from fixed_file_variables import *
-from dynamic_file_variables import *
+from Input.fixed_file_variables import FixedFileVariables
+from Input.dynamic_file_variables import DynamicFileVariables
 from visualize import draw_routes
+from Input.instance_generator import Instance
 
-f = FixedFileVariables()
-d = DynamicFileVariables()
+rand_mode = True
+
+if rand_mode:
+    tes = Instance(10, 2, 50)
+    f = tes.fixed
+    d = tes.dynamic
+else:
+    f = FixedFileVariables()
+    d = DynamicFileVariables()
 
 try:
     m = Model("Bicycle")
