@@ -174,8 +174,8 @@ try:
             1-x[(i, Stations[-1], v)]) * M for i in Stations for v in Vehicles)
     m.addConstrs(s_V[v] <= l_V[(i, v)] - q[(i, v)] + (
             1 - x[(i, Stations[-1], v)]) * M for i in Stations for v in Vehicles)
-    m.addConstrs(r_D[i] <= d[i] + station_cap[i] * (1 - delta[i])
-                 for i in Stations[1:-1] for j in Stations[1:-1] for v in Vehicles)
+    m.addConstrs(r_D[i] <= q.sum(i, '*') + station_cap[i] * (1 - delta[i])
+                 for i in Stations[1:-1])
     m.addConstrs(r_D[i] <= delta[i] * station_cap[i] for i in Stations[1:-1])
     m.addConstrs(s_V[v] <= I_V + vehicle_cap[v] * sigma_V[v] for v in Vehicles)
     m.addConstrs(s_B[i] <= I_B + station_cap[i] * sigma_B[i] for i in Stations[1:-1])
