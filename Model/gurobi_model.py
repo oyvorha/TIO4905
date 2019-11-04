@@ -153,10 +153,12 @@ try:
                                                                                          ) for i in Stations[1:-1])
     m.addConstrs(l_B[i] + station_cap[i] * omega[i] <= station_cap[i] for i in Stations[1:-1])
     m.addConstrs(1 - omega[i] <= l_B[i] for i in Stations[1:-1])
-    m.addConstrs((v_S[i]-v_SF[i]) - M * (omega[i] - delta[i] + 1) <= 0 for i in Stations[1:-1])
+    m.addConstrs((v_S[i] - v_SF[i]) - M * (omega[i] - delta[i] + 1) <= 0 for i in Stations[1:-1])
     m.addConstr(delta[0] <= 0)
     m.addConstrs(v_SF[i] <= M * delta[i] for i in Stations[1:-1])
     m.addConstrs(v_SF[i] - M * (1 - delta[i]) <= v_S[i] for i in Stations[1:-1])
+    m.addConstr(v_SF[Stations[0]] <= 0)
+    m.addConstr(v_SF[Stations[-1]] <= 0)
 
     # ------- DEVIATIONS -----------------------------------------------------------------------------
     m.addConstrs(d[i] >= ideal_state[i] - s_B[i] for i in Stations[1:-1])
