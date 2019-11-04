@@ -113,14 +113,18 @@ try:
     m.addConstrs(t[i] >= time_horizon * delta[i] for i in Stations[1:-1])
     m.addConstrs(delta[i] <= x.sum(i, Stations[-1], '*') for i in Stations[:-1])
     m.addConstrs(gamma[i] == x.sum(i, '*', '*') for i in Stations[1:])
+
+    # Situation 1
     m.addConstrs(s_B[i] <= init_station_load[i] + (incoming_flat_rate[i] - demand[i]
                                                     ) * time_horizon + v_Sf[i] + M * gamma[i] for i in Stations[1:-1])
     m.addConstrs(s_B[i] >= init_station_load[i] + (incoming_flat_rate[i] - demand[i]
                                                     ) * time_horizon + v_Sf[i] - M * gamma[i] for i in Stations[1:-1])
     m.addConstrs(s_F[i] <= init_flat_station_load[i] +
-                 incoming_flat_rate[i] * time_horizon + M * gamma[i] for i in Stations[1:])
+                 incoming_flat_rate[i] * time_horizon + M * gamma[i] for i in Stations[1:-1])
     m.addConstrs(s_F[i] >= init_flat_station_load[i] +
-                 incoming_flat_rate[i] * time_horizon - M * gamma[i] for i in Stations[1:])
+                 incoming_flat_rate[i] * time_horizon - M * gamma[i] for i in Stations[1:-1])
+
+    # Situation 2
     m.addConstrs(s_B[i] <= l_B[i] + q.sum(i, '*') + (incoming_rate[i]-demand[i]) * (
                 time_horizon - t[i]) + v_Sf[i] + M * delta[i] for i in Stations[1:-1])
     m.addConstrs(s_B[i] >= l_B[i] + q.sum(i, '*') + (incoming_rate[i] - demand[i]) * (
@@ -163,8 +167,8 @@ try:
     m.addConstrs(r_D[i] <= d[i] + station_cap[i] * (1 - delta[i])
                  for i in Stations[1:-1] for j in Stations[1:-1] for v in Vehicles)
     m.addConstrs(r_D[i] <= delta[i] * station_cap[i] for i in Stations[1:-1])
-    m.addConstrs(s_V[v] <= I_V + I_V * sigma_V[v] for v in Vehicles)
-    m.addConstrs(s_B[i] <= I_B + I_B * sigma_B[i] for i in Stations[1:-1])
+    m.addConstrs(s_V[v] <= I_V + vehicle_cap[v] * sigma_V[v] for v in Vehicles)
+    m.addConstrs(s_B[i] <= I_B + station_cap[i] * sigma_B[i] for i in Stations[1:-1])
     m.addConstrs(x[(i, Stations[-1], v)] <= 2 - sigma_V[v] - delta[i] for i in Stations for v in Vehicles)
     m.addConstrs(x[(i, Stations[-1], v)] <= 2 - sigma_B[v] - delta[i] for i in Stations for v in Vehicles)
     m.addConstr(r_D[Stations[-1]] <= 0)
