@@ -149,7 +149,7 @@ try:
             t[i] - time_horizon) + v_SF[i] - M * (1 - delta[i]) for i in Stations[1:-1])
     m.addConstrs(-s_F[i] <= -l_F[i] + incoming_flat_rate[i] * (t[i]-time_horizon) + M * (1 - delta[i]
                                                                                        ) for i in Stations[1:-1])
-    m.addConstrs(s_F[i] >= l_F[i] + incoming_flat_rate[i] * (t[i] - time_horizon) - M * (1 - delta[i]
+    m.addConstrs(-s_F[i] >= -l_F[i] + incoming_flat_rate[i] * (t[i] - time_horizon) - M * (1 - delta[i]
                                                                                          ) for i in Stations[1:-1])
     m.addConstrs(l_B[i] + station_cap[i] * omega[i] <= station_cap[i] for i in Stations[1:-1])
     m.addConstrs(1 - omega[i] <= l_B[i] for i in Stations[1:-1])
