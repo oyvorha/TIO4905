@@ -2,7 +2,7 @@
 class FixedFileVariables:
 
     def __init__(self):
-        self.stations = [0, 1, 2, 3, 4, 5]
+        self.stations = [0, 1, 2, 3, 4]
         self.vehicles = [0, 1]
         self.time_horizon = 10
         self.vehicle_cap = [10, 10]

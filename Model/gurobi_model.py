@@ -1,10 +1,18 @@
 from gurobipy import *
-from fixed_file_variables import *
-from dynamic_file_variables import *
+from Input.fixed_file_variables import FixedFileVariables
+from Input.dynamic_file_variables import DynamicFileVariables
 from visualize import draw_routes
+from Input.instance_generator import Instance
 
-f = FixedFileVariables()
-d = DynamicFileVariables()
+rand_mode = True
+
+if rand_mode:
+    tes = Instance(10, 2, 50)
+    f = tes.fixed
+    d = tes.dynamic
+else:
+    f = FixedFileVariables()
+    d = DynamicFileVariables()
 
 try:
     m = Model("Bicycle")
@@ -135,20 +143,22 @@ try:
                 time_horizon - t[i]) - M * delta[i] for i in Stations[1:-1])
 
     # Situation 3
-    m.addConstrs(s_B[i] <= l_B[i] + (incoming_rate[i] - demand[i]) * (
-                t[i] - time_horizon) - v_SF[i] + M * (1 - delta[i]) for i in Stations[1:-1])
-    m.addConstrs(s_B[i] >= l_B[i] + (incoming_rate[i] - demand[i]) * (
-            t[i] - time_horizon) - v_SF[i] - M * (1 - delta[i]) for i in Stations[1:-1])
-    m.addConstrs(s_F[i] <= l_F[i] + incoming_flat_rate[i] * (t[i]-time_horizon) + M * (1 - delta[i]
+    m.addConstrs(-s_B[i] <= -l_B[i] + (incoming_rate[i] - demand[i]) * (
+                t[i] - time_horizon) + v_SF[i] + M * (1 - delta[i]) for i in Stations[1:-1])
+    m.addConstrs(-s_B[i] >= -l_B[i] + (incoming_rate[i] - demand[i]) * (
+            t[i] - time_horizon) + v_SF[i] - M * (1 - delta[i]) for i in Stations[1:-1])
+    m.addConstrs(-s_F[i] <= -l_F[i] + incoming_flat_rate[i] * (t[i]-time_horizon) + M * (1 - delta[i]
                                                                                        ) for i in Stations[1:-1])
-    m.addConstrs(s_F[i] >= l_F[i] + incoming_flat_rate[i] * (t[i] - time_horizon) - M * (1 - delta[i]
+    m.addConstrs(-s_F[i] >= -l_F[i] + incoming_flat_rate[i] * (t[i] - time_horizon) - M * (1 - delta[i]
                                                                                          ) for i in Stations[1:-1])
-    m.addConstrs(s_B[i] + station_cap[i] * omega[i] <= station_cap[i] for i in Stations[1:-1])
-    m.addConstrs(1 - omega[i] <= s_B[i] for i in Stations[1:-1])
-    m.addConstrs((v_S[i]-v_SF[i]) - M * (omega[i] - delta[i] + 1) <= 0 for i in Stations[1:-1])
+    m.addConstrs(l_B[i] + station_cap[i] * omega[i] <= station_cap[i] for i in Stations[1:-1])
+    m.addConstrs(1 - omega[i] <= l_B[i] for i in Stations[1:-1])
+    m.addConstrs((v_S[i] - v_SF[i]) - M * (omega[i] - delta[i] + 1) <= 0 for i in Stations[1:-1])
     m.addConstr(delta[0] <= 0)
     m.addConstrs(v_SF[i] <= M * delta[i] for i in Stations[1:-1])
     m.addConstrs(v_SF[i] - M * (1 - delta[i]) <= v_S[i] for i in Stations[1:-1])
+    m.addConstr(v_SF[Stations[0]] <= 0)
+    m.addConstr(v_SF[Stations[-1]] <= 0)
 
     # ------- DEVIATIONS -----------------------------------------------------------------------------
     m.addConstrs(d[i] >= ideal_state[i] - s_B[i] for i in Stations[1:-1])
@@ -164,8 +174,8 @@ try:
             1-x[(i, Stations[-1], v)]) * M for i in Stations for v in Vehicles)
     m.addConstrs(s_V[v] <= l_V[(i, v)] - q[(i, v)] + (
             1 - x[(i, Stations[-1], v)]) * M for i in Stations for v in Vehicles)
-    m.addConstrs(r_D[i] <= d[i] + station_cap[i] * (1 - delta[i])
-                 for i in Stations[1:-1] for j in Stations[1:-1] for v in Vehicles)
+    m.addConstrs(r_D[i] <= q.sum(i, '*') + station_cap[i] * (1 - delta[i])
+                 for i in Stations[1:-1])
     m.addConstrs(r_D[i] <= delta[i] * station_cap[i] for i in Stations[1:-1])
     m.addConstrs(s_V[v] <= I_V + vehicle_cap[v] * sigma_V[v] for v in Vehicles)
     m.addConstrs(s_B[i] <= I_B + station_cap[i] * sigma_B[i] for i in Stations[1:-1])
@@ -179,7 +189,7 @@ try:
                  for i in Stations for v in Vehicles)
 
     # ------- OBJECTIVE ------------------------------------------------------------------------------
-    m.setObjective(w_violation * (v_S.sum('*')+v_SF.sum('*')+v_Sf.sum('*')) + w_dev_obj * d.sum('*')
+    m.setObjective(w_violation * (v_S.sum('*') - v_SF.sum('*') + v_Sf.sum('*')) + w_dev_obj * d.sum('*')
                    - w_reward * (w_dev_reward * r_D.sum('*') - w_driving_times * t_f.sum('*')), GRB.MINIMIZE)
     # m.setObjective(v_S.sum('*')+v_SF.sum('*')+v_Sf.sum('*') + d.sum('*'), GRB.MINIMIZE)
 
