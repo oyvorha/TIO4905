@@ -131,7 +131,7 @@ class Instance:
         f.write("self.init_vehicle_load = " + str(self.dynamic.init_vehicle_load) + "\n")
         f.write("self.init_station_load = " + str(self.dynamic.init_station_load) + "\n")
         f.write("self.init_flat_station_load = " + str(self.dynamic.init_flat_station_load) + "\n")
-        f.write("self.ideal_stat = " + str(self.dynamic.ideal_state) + "\n")
+        f.write("self.ideal_state = " + str(self.dynamic.ideal_state) + "\n")
         f.write("self.driving_to_start = " + str(self.dynamic.driving_to_start) + "\n")
         f.write("self.demand = " + str(self.dynamic.demand) + "\n")
         f.write("self.incoming_rate = " + str(self.dynamic.incoming_rate) + "\n")
