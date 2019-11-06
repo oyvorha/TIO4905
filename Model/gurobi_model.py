@@ -165,11 +165,6 @@ try:
     m.addConstrs(d[i] >= s_B[i] - ideal_state[i] for i in Stations[1:-1])
     
     # ------- OBJECTIVE CONSTRAINTS ------------------------------------------------------------------
-    m.addConstrs(s_V[v] <= l_V[(i, v)] + (2 - delta[j] + delta[i] - x[(i, j, v)]) * vehicle_cap[v]
-                 for i in Stations[1:-1] for j in Stations[1:-1] for v in Vehicles)
-    m.addConstrs(s_V[v] >= l_V[(i, v)] - (2 - delta[j] + delta[i] - x[(i, j, v)]) * vehicle_cap[v]
-                 for i in Stations[1:-1] for j in Stations[1:-1] for v in Vehicles)
-    
     m.addConstrs(s_V[v] >= l_V[(i, v)] - q[(i, v)]-(
             1-x[(i, Stations[-1], v)]) * M for i in Stations for v in Vehicles)
     m.addConstrs(s_V[v] <= l_V[(i, v)] - q[(i, v)] + (
