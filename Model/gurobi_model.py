@@ -29,8 +29,6 @@ try:
     parking_time = f.parking_time
     handling_time = f.handling_time
     M = f.M
-    I_B = f.I_B
-    I_V = f.I_V
     w_dev_reward = f.w_dev_reward
     w_driving_times = f.w_driving_time
     w_dev_obj = f.w_dev_obj
@@ -69,8 +67,6 @@ try:
     lam = m.addVars({i for i in Stations}, vtype=GRB.BINARY, name="lam")
     r_D = m.addVars({i for i in Stations}, vtype=GRB.CONTINUOUS, lb=0, name="r_D")
     t_f = m.addVars({v for v in Vehicles}, vtype=GRB.CONTINUOUS, lb=0, name="t_f")
-    sigma_B = m.addVars({i for i in Stations}, vtype=GRB.BINARY, name="sigma_B")
-    sigma_V = m.addVars({v for v in Vehicles}, vtype=GRB.BINARY, name="sigma_V")
 
     # ------- FEASIBILITY CONSTRAINTS ----------------------------------------------------------
     # Routing constraints
@@ -172,10 +168,6 @@ try:
     m.addConstrs(r_D[i] <= q.sum(i, '*') + station_cap[i] * (1 - delta[i])
                  for i in Stations[1:-1])
     m.addConstrs(r_D[i] <= delta[i] * station_cap[i] for i in Stations[1:-1])
-    m.addConstrs(s_V[v] <= I_V + vehicle_cap[v] * sigma_V[v] for v in Vehicles)
-    m.addConstrs(s_B[i] <= I_B + station_cap[i] * sigma_B[i] for i in Stations[1:-1])
-    m.addConstrs(x[(i, Stations[-1], v)] <= 2 - sigma_V[v] - delta[i] for i in Stations for v in Vehicles)
-    m.addConstrs(x[(i, Stations[-1], v)] <= 2 - sigma_B[v] - delta[i] for i in Stations for v in Vehicles)
     m.addConstr(r_D[Stations[-1]] <= 0)
     m.addConstr(r_D[Stations[0]] <= 0)
     m.addConstrs(t_f[v] - t[i] + time_horizon - M * (1 - x[(i, Stations[-1], v)]) <= 0
