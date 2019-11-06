@@ -186,7 +186,6 @@ try:
     # ------- OBJECTIVE ------------------------------------------------------------------------------
     m.setObjective(w_violation * (v_S.sum('*') - v_SF.sum('*') + v_Sf.sum('*')) + w_dev_obj * d.sum('*')
                    - w_reward * (w_dev_reward * r_D.sum('*') - w_driving_times * t_f.sum('*')), GRB.MINIMIZE)
-    # m.setObjective(v_S.sum('*')+v_SF.sum('*')+v_Sf.sum('*') + d.sum('*'), GRB.MINIMIZE)
 
     m.optimize()
 
