@@ -165,11 +165,6 @@ try:
     m.addConstrs(d[i] >= s_B[i] - ideal_state[i] for i in Stations[1:-1])
     
     # ------- OBJECTIVE CONSTRAINTS ------------------------------------------------------------------
-    m.addConstrs(s_V[v] <= l_V[(i, v)] + (2 - delta[j] + delta[i] - x[(i, j, v)]) * vehicle_cap[v]
-                 for i in Stations[1:-1] for j in Stations[1:-1] for v in Vehicles)
-    m.addConstrs(s_V[v] >= l_V[(i, v)] - (2 - delta[j] + delta[i] - x[(i, j, v)]) * vehicle_cap[v]
-                 for i in Stations[1:-1] for j in Stations[1:-1] for v in Vehicles)
-    
     m.addConstrs(s_V[v] >= l_V[(i, v)] - q[(i, v)]-(
             1-x[(i, Stations[-1], v)]) * M for i in Stations for v in Vehicles)
     m.addConstrs(s_V[v] <= l_V[(i, v)] - q[(i, v)] + (
@@ -191,7 +186,6 @@ try:
     # ------- OBJECTIVE ------------------------------------------------------------------------------
     m.setObjective(w_violation * (v_S.sum('*') - v_SF.sum('*') + v_Sf.sum('*')) + w_dev_obj * d.sum('*')
                    - w_reward * (w_dev_reward * r_D.sum('*') - w_driving_times * t_f.sum('*')), GRB.MINIMIZE)
-    # m.setObjective(v_S.sum('*')+v_SF.sum('*')+v_Sf.sum('*') + d.sum('*'), GRB.MINIMIZE)
 
     m.optimize()
 
