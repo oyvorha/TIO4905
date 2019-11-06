@@ -12,8 +12,6 @@ class FixedFileVariables:
         self.parking_time = 1
         self.handling_time = 1
         self.M = 10000
-        self.I_B = 5
-        self.I_V = 5
         self.w_dev_reward = 0.4
         self.w_driving_time = 0.6
         self.w_violation = 0.5
