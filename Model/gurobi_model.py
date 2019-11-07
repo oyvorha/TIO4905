@@ -77,7 +77,7 @@ try:
             if j != start_stations[v]:
                 m.addConstr(x.sum('*', j, v) - x.sum(j, '*', v) == 0)
     m.addConstrs(x.sum('*', j, '*') <= 1 for j in Stations[1:-1])
-    m.addConstrs(x.sum('*', 0, v) <= 1 for v in Vehicles)
+    m.addConstrs(x.sum('*', Stations[0], v) <= 1 for v in Vehicles)
     m.addConstrs(x.sum('*', '*', v) <= (len(Stations)-1) for v in Vehicles)
 
     # Time Constraints
