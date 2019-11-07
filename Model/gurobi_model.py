@@ -186,14 +186,15 @@ try:
     for v in m.getVars():
         if v.varName[0] == 'x' and v.x == 1:
             t = float(m.getVarByName("t[{}]".format(v.varName[2])).x)
+            q = int(m.getVarByName("q[{},{}]".format(v.varName[2], v.varName[6])).x)
             dist = driving_times[int(v.varName[2])][int(v.varName[4])]
-            arch = [int(v.varName[2]), int(v.varName[4]), t, dist]
+            arch = [int(v.varName[2]), int(v.varName[4]), t, dist, q]
             if int(v.varName[-2]) not in route_dict.keys():
                 route_dict[int(v.varName[-2])] = [arch]
             else:
                 route = route_dict[int(v.varName[-2])]
                 for i in range(len(route)):
-                    if route[i][-2] > t:
+                    if route[i][-3] > t:
                         route.insert(i, arch)
                         break
                     else:
