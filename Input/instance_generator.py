@@ -2,6 +2,7 @@ from Input.fixed_file_variables import FixedFileVariables
 from Input.dynamic_file_variables import DynamicFileVariables
 import numpy as np
 import random
+from scipy.spatial import distance
 
 
 class Instance:
@@ -31,12 +32,13 @@ class Instance:
     def set_time_matrix(self):
         time_cap = 15
         matrix = np.zeros((self.n_stations, self.n_stations))
+        geographical_points = [(random.randint(0, time_cap), random.randint(0, time_cap)) for i in range(self.n_stations)]
         for i in range(self.n_stations-1):
             for j in range(i, self.n_stations-1):
                 if i == j:
                     continue
                 else:
-                    time_x = round(random.random() * time_cap, 2)
+                    time_x = round(distance.euclidean(geographical_points[i], geographical_points[j]), 1)
                     matrix[i][j] = time_x
                     matrix[j][i] = time_x
         self.fixed.driving_times = matrix
