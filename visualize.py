@@ -7,7 +7,7 @@ def draw_routes(dict_routes, stations):
     battery_labels = {}
     for s in stations:
         g.add_node(s)
-        battery_labels[s] = "N" + str(s)
+        battery_labels[s] = "S" + str(s)
     color_map = []
     for route in dict_routes.values():
         route_edges = []
