@@ -65,7 +65,6 @@ try:
     v_Sf = m.addVars({i for i in Swap_Stations}, vtype=GRB.CONTINUOUS, name="v_Sf")
     v_SF = m.addVars({i for i in Swap_Stations}, vtype=GRB.CONTINUOUS, name="v_SF")
     omega = m.addVars({i for i in Stations}, vtype=GRB.BINARY, name="omega")
-    lam = m.addVars({i for i in Swap_Stations}, vtype=GRB.BINARY, name="lam")
     r_D = m.addVars({i for i in Stations}, vtype=GRB.CONTINUOUS, lb=0, name="r_D")
     t_f = m.addVars({v for v in Vehicles}, vtype=GRB.CONTINUOUS, lb=0, name="t_f")
 
@@ -108,8 +107,6 @@ try:
             incoming_rate[i] - demand[i]) * t[i] + v_S[i] for i in Swap_Stations)
     m.addConstrs(q.sum(i, '*') <= l_F[i] for i in Swap_Stations)
     m.addConstrs(q[(i, v)] - vehicle_cap[v] * x.sum(i, '*', v) <= 0 for i in Swap_Stations for v in Vehicles)
-    m.addConstrs(l_B[i] - M * (1 - lam[i]) <= 0 for i in Swap_Stations)
-    m.addConstrs(init_station_load[i] + (incoming_flat_rate[i] - demand[i]) * t[i] + M * lam[i] >= 0 for i in Swap_Stations)
 
     # ------- VIOLATION CONSTRAINTS ------------------------------------------------------------------
     m.addConstrs(t[i] <= time_horizon + M * delta[i] for i in Swap_Stations)
