@@ -3,7 +3,7 @@ from Input.dynamic_file_variables import DynamicFileVariables
 import numpy as np
 import random
 from scipy.spatial import distance
-
+from Input.generate_Ms import GenMs
 
 class Instance:
 
@@ -27,6 +27,8 @@ class Instance:
         self.set_station_rates()
         self.set_ideal_state(5)
         self.set_time_to_start()
+
+        self.gen_ms = GenMs(self.fixed, self.dynamic)
         self.write_to_file()
 
     def set_time_matrix(self):
@@ -121,7 +123,20 @@ class Instance:
         f.write("self.driving_times = " + repr(self.fixed.driving_times) + "\n")
         f.write("self.parking_time = " + str(self.fixed.parking_time) + "\n")
         f.write("self.handling_time = " + str(self.fixed.handling_time) + "\n")
-        f.write("self.M = " + str(self.fixed.M) + "\n")
+        f.write("self.M_1 = " + str(self.fixed.M_1) + "\n")
+        f.write("self.M_2 = " + str(self.fixed.M_2) + "\n")
+        f.write("self.M_3 = " + str(self.fixed.M_3) + "\n")
+        f.write("self.M_4 = " + str(self.fixed.M_4) + "\n")
+        f.write("self.M_5 = " + str(self.fixed.M_5) + "\n")
+        f.write("self.M_6 = " + str(self.fixed.M_6) + "\n")
+        f.write("self.M_7 = " + str(self.fixed.M_7) + "\n")
+        f.write("self.M_8 = " + str(self.fixed.M_8) + "\n")
+        f.write("self.M_9 = " + str(self.fixed.M_9) + "\n")
+        f.write("self.M_10 = " + str(self.fixed.M_10) + "\n")
+        f.write("self.M_11 = " + str(self.fixed.M_11) + "\n")
+        f.write("self.M_12 = " + str(self.fixed.M_12) + "\n")
+        f.write("self.M_13 = " + str(self.fixed.M_13) + "\n")
+        f.write("self.M_14 = " + str(self.fixed.M_14) + "\n")
         f.write("Reward weight deviation = " + str(self.fixed.w_dev_reward) + "\n")
         f.write("Reward weight driving time = " + str(self.fixed.w_driving_time) + "\n")
         f.write("Weight deviation = " + str(self.fixed.w_dev_obj) + "\n")
