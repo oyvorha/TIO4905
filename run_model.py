@@ -7,20 +7,42 @@ with open("Data_processing/station.json", 'r') as f:
     stations = json.load(f)
 
 # INPUT VALUES
-n_stations = 8
-scenario = 'B'
+n_instance = 100
+scenario = 'A'
 time_horizon = 10
 n_vehicles = 2
+ideal_state = 5
 
 
 def get_n_stations(n):
     station_objects = []
+    counter = 0
     for station in stations.items():
-        obj = Station(float(station[1][0]), float(station[1][1]), station[1][2][scenario][0], station[1][2][scenario][1], station[1][2][scenario][2],
-                      station[1][2][scenario][3], station[1][2][scenario][4], station[1][2][scenario][5])
-        station_objects.append(obj)
+        counter += 1
+        if counter > n:
+            break
+        latitude = float(station[1][0])
+        longitude = float(station[1][1])
+        init_battery_load = station[1][2][scenario][0]
+        init_flat_load = station[1][2][scenario][1]
+        incoming_battery_rate = station[1][2][scenario][2]
+        incoming_flat_rate = station[1][2][scenario][3]
+        outgoing_rate = station[1][2][scenario][4]
+        demand = station[1][2][scenario][5]
+        if check_demand(incoming_battery_rate, init_battery_load, demand, ideal_state):
+            obj = Station(latitude, longitude, init_battery_load, init_flat_load
+                          , incoming_battery_rate, incoming_flat_rate, outgoing_rate,
+                          demand, ideal_state)
+            station_objects.append(obj)
+    print(len(station_objects))
     return station_objects
 
 
-station_obj = get_n_stations(n_stations)
-Instance(n_stations, n_vehicles, time_horizon, station_obj)
+def check_demand(incoming_bat_rate, init_bat_load, dem, ideal):
+    if init_bat_load + time_horizon * (incoming_bat_rate - dem) >= ideal:
+        return False
+    return True
+
+
+station_obj = get_n_stations(n_instance)
+Instance(len(station_obj), n_vehicles, time_horizon, station_obj)
