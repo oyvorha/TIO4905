@@ -98,7 +98,7 @@ class Instance:
             self.dynamic.ideal_state[station] = ideal
 
     def write_to_file(self):
-        f = open("../Input/input_params.txt", 'w')
+        f = open("Input/input_params.txt", 'w')
         f.write("------------ FIXED ------------------------ \n")
         f.write("self.stations = " + str(self.fixed.stations) + "\n")
         f.write("self.vehicles = " + str(self.fixed.vehicles) + "\n")
