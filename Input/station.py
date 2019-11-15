@@ -1,5 +1,5 @@
 
-class Station():
+class Station:
 
     def __init__(self, longitude, latitude, bat_load, flat_load, ideal, demand, incoming_rate, flat_rate):
         self.longitude = longitude
