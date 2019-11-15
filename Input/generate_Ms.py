@@ -43,7 +43,8 @@ class GenMs:
 
 
     def getM_2(self):
-        M_2 = max(self.get_max_t()) - self.fixed.time_horizon
+        M_2 = np.array(self.get_max_t()) - self.fixed.time_horizon
+        M_2 = list(M_2)
         return M_2
 
     def getM_3(self):
@@ -75,30 +76,28 @@ class GenMs:
 
     def getM_9(self):
         station_cap = self.fixed.station_cap
-        flow_batt = self.dynamic.incoming_rate
-        demand = self.dynamic.demand
-        net_d = np.array(flow_batt) - np.array(demand)
+        flow_batt = np.array(self.dynamic.incoming_rate)
         time = np.array(self.get_max_t()) - self.fixed.time_horizon
-        M_9 = -(np.array(station_cap) + net_d*time) #PS jeg er litt usikker på fortegn her
+        M_9 = list((np.array(station_cap) + flow_batt*time))
         return M_9
 
     def getM_10(self):
         station_cap = self.fixed.station_cap
         flow_flat = self.dynamic.incoming_flat_rate
         time = np.array(self.get_max_t()) - self.fixed.time_horizon
-        M_10 = np.array(station_cap) + flow_flat*time
+        M_10 = list(np.array(station_cap) + flow_flat*time)
         return M_10
 
     def getM_11(self):
-        M_11 = np.absolute(self.dynamic.demand) * self.fixed.time_horizon
+        M_11 = list(np.absolute(self.dynamic.demand) * self.fixed.time_horizon)
         return M_11
 
     def getM_12(self):
-        M_12 = np.absolute(self.dynamic.demand) * (np.array(self.get_max_t())-self.fixed.time_horizon)
+        M_12 = list(np.absolute(self.dynamic.demand) * (np.array(self.get_max_t())-self.fixed.time_horizon))
         return M_12
 
     def getM_13(self):
-        M_13 = np.absolute(self.dynamic.demand) * (np.array(self.get_max_t()) - self.fixed.time_horizon)
+        M_13 = list(np.absolute(self.dynamic.demand) * (np.array(self.get_max_t()) - self.fixed.time_horizon))
         return M_13
 
     def getM_14(self):
