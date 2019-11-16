@@ -2,6 +2,7 @@ from gurobipy import *
 from Input.fixed_file_variables import FixedFileVariables
 from Input.dynamic_file_variables import DynamicFileVariables
 from visualize import draw_routes
+import time
 
 
 def run_model(instance, last_mode=False):
@@ -15,6 +16,7 @@ def run_model(instance, last_mode=False):
 
     try:
         m = Model("Bicycle")
+        start_time = time.time()
 
         # ------ SETS -----------------------------------------------------------------------------
         Stations = f.stations
@@ -204,6 +206,10 @@ def run_model(instance, last_mode=False):
                        - w_reward * (w_dev_reward * r_D.sum('*') - w_driving_times * t_f.sum('*')), GRB.MINIMIZE)
 
         m.optimize()
+        end_time = time.time()
+
+        exec_time = end_time - start_time
+        print("Execution time was", exec_time)
 
         # ------- VISUALIZE ------------------------------------------------------------------------------
         route_dict = {}
@@ -240,7 +246,7 @@ def run_model(instance, last_mode=False):
         print(route_dict)
         print("Obj: ", m.objVal)
 
-        return m
+        return m, exec_time
 
     except GurobiError:
         print("Error")
