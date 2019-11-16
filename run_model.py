@@ -50,4 +50,6 @@ station_obj = get_n_stations(n_instance)
 generated_instance = Instance(len(station_obj)+2, n_vehicles, time_horizon, station_obj,
                               vehicle_cap=vehicle_cap, station_cap=station_cap)
 
-run_model(generated_instance)
+model = run_model(generated_instance)
+
+# save_output(model, generated_instance.fixed, generated_instance.dynamic)
