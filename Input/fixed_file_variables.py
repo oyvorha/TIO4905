@@ -44,3 +44,6 @@ class FixedFileVariables:
         self.w_violation = 0.5
         self.w_dev_obj = 0.2
         self.w_reward = 0.3
+
+        self.demand_scenario = 'A'
+        self.initial_size = 10
