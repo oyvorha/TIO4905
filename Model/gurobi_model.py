@@ -125,7 +125,7 @@ try:
     m.addConstrs(q[(i, v)] - vehicle_cap[v] * x.sum(i, '*', v) <= 0 for i in Swap_Stations for v in Vehicles)
 
     # ------- VIOLATION CONSTRAINTS ------------------------------------------------------------------
-    m.addConstrs(t[i] <= time_horizon + M_6[i] * delta[i] for i in Swap_Stations)
+    m.addConstrs(t[i] <= time_horizon + M * delta[i] for i in Swap_Stations)
     m.addConstrs(t[i] >= time_horizon * delta[i] for i in Swap_Stations)
     m.addConstrs(delta[i] <= x.sum(i, Stations[-1], '*') for i in Swap_Stations)
     m.addConstrs(gamma[i] == x.sum(i, '*', '*') for i in Swap_Stations)
@@ -136,9 +136,9 @@ try:
     m.addConstrs(s_B[i] >= init_station_load[i] + (incoming_rate[i] - demand[i]
                                                     ) * time_horizon + v_Sf[i] - M * gamma[i] for i in Swap_Stations)
     m.addConstrs(s_F[i] <= init_flat_station_load[i] +
-                 incoming_flat_rate[i] * time_horizon + M_7[i] * gamma[i] for i in Swap_Stations)
+                 incoming_flat_rate[i] * time_horizon + M * gamma[i] for i in Swap_Stations)
     m.addConstrs(s_F[i] >= init_flat_station_load[i] +
-                 incoming_flat_rate[i] * time_horizon - M_7[i] * gamma[i] for i in Swap_Stations)
+                 incoming_flat_rate[i] * time_horizon - M * gamma[i] for i in Swap_Stations)
 
     # Situation 2
     m.addConstrs(s_B[i] <= l_B[i] + q.sum(i, '*') + (incoming_rate[i]-demand[i]) * (
@@ -152,12 +152,12 @@ try:
 
     # Situation 3
     m.addConstrs(l_B[i] <= s_B[i] + (incoming_rate[i] - demand[i]) * (
-                t[i] - time_horizon) + v_SF[i] + M_9[i] * (1 - delta[i]) for i in Swap_Stations)
+                t[i] - time_horizon) + v_SF[i] + M * (1 - delta[i]) for i in Swap_Stations)
     m.addConstrs(l_B[i] >= s_B[i] + (incoming_rate[i] - demand[i]) * (
-            t[i] - time_horizon) + v_SF[i] - M_9[i] * (1 - delta[i]) for i in Swap_Stations)
-    m.addConstrs(l_F[i] <= s_F[i] + incoming_flat_rate[i] * (t[i]-time_horizon) + M_10[i] * (1 - delta[i]
+            t[i] - time_horizon) + v_SF[i] - M * (1 - delta[i]) for i in Swap_Stations)
+    m.addConstrs(l_F[i] <= s_F[i] + incoming_flat_rate[i] * (t[i]-time_horizon) + M * (1 - delta[i]
                                                                                        ) for i in Swap_Stations)
-    m.addConstrs(l_F[i] >= s_F[i] + incoming_flat_rate[i] * (t[i] - time_horizon) - M_10[i] * (1 - delta[i]
+    m.addConstrs(l_F[i] >= s_F[i] + incoming_flat_rate[i] * (t[i] - time_horizon) - M * (1 - delta[i]
                                                                                          ) for i in Swap_Stations)
     m.addConstrs(l_B[i] + station_cap[i] * omega[i] <= station_cap[i] for i in Swap_Stations)
     m.addConstrs(1 - omega[i] <= l_B[i] for i in Swap_Stations)
