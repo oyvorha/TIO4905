@@ -47,7 +47,7 @@ def check_demand(incoming_bat_rate, init_bat_load, dem, ideal):
 
 
 station_obj = get_n_stations(n_instance)
-generated_instance = Instance(len(station_obj), n_vehicles, time_horizon, station_obj,
+generated_instance = Instance(len(station_obj)+2, n_vehicles, time_horizon, station_obj,
                               vehicle_cap=vehicle_cap, station_cap=station_cap)
 
 run_model(generated_instance)
