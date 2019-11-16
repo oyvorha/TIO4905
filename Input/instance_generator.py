@@ -60,7 +60,7 @@ class Instance:
     def set_start_stations(self):
         start = []
         for i in range(self.n_vehicles):
-            if self.n_stations < (i-2):
+            if self.n_stations > (i-2):
                 start.append(i+1)
             else:
                 start.append(0)
