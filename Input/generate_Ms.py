@@ -66,13 +66,40 @@ class GenMs:
         M_6 = self.get_max_t()
         return M_6
 
-    def getM_7(self):
-        M_7 = self.fixed.station_cap
-        return M_7
+    def getM_7A(self):
+        batt_flow = self.dynamic.incoming_rate
+        init_load = self.dynamic.init_station_load
+        T = self.fixed.time_horizon
+        viol = np.array(self.dynamic.demand) * T
+        M_7A = list(np.array(init_load) + np.array(batt_flow) * T + viol)
+        return M_7A
 
-    def getM_8(self):
-        M_8 = self.fixed.station_cap
-        return M_8
+    def getM_7B(self):
+        flat_flow = self.dynamic.incoming_flat_rate
+        init_flat_load = self.dynamic.init_flat_station_load
+        T = self.fixed.time_horizon
+        M_7B= list(np.array(init_flat_load) + np.array(flat_flow) * T)
+        return M_7B
+
+    def getM_8A(self):
+        M_8A = []
+        Q_s = self.fixed.station_cap
+        batt_flow = self.dynamic.incoming_rate
+        T = self.fixed.time_horizon
+        viol = np.array(self.dynamic.demand) * T
+        for i in range (len(self.fixed.stations)):
+            max_qv = max(self.fixed.vehicle_cap)
+            max_qs = self.fixed.station_cap[i]
+            max_qb = min(max_qv, max_qs)
+            M_8A.append(Q_s[i] + max_qb + batt_flow[i] * T + viol[i])
+        return M_8A
+
+    def getM_8B(self):
+        Q_s = self.fixed.station_cap
+        flat_flow = self.dynamic.incoming_flat_rate
+        T = self.fixed.time_horizon
+        M_8B = list(Q_s + np.array(flat_flow) * T)
+        return M_8B
 
     def getM_9(self):
         station_cap = self.fixed.station_cap
