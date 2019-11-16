@@ -1,13 +1,13 @@
 from Input.fixed_file_variables import FixedFileVariables
 from Input.dynamic_file_variables import DynamicFileVariables
 import numpy as np
-import random
-from scipy.spatial import distance
+from Data_processing.Google_API import get_driving_time
 from Input.generate_Ms import GenMs
+
 
 class Instance:
 
-    def __init__(self, n_stations, n_vehicles, n_time_hor):
+    def __init__(self, n_stations, n_vehicles, n_time_hor, stations, station_cap=30, vehicle_cap=10):
         self.n_stations = n_stations
         self.n_vehicles = n_vehicles
         self.time_horizon = n_time_hor
@@ -16,40 +16,40 @@ class Instance:
         self.fixed.time_horizon = self.time_horizon
 
         self.dynamic = DynamicFileVariables()
+
         self.set_stations()
         self.set_vehicles()
-        self.set_time_matrix()
-        self.set_station_cap(10)
-        self.set_vehicle_cap(10)
-        self.set_init_station_load()
-        self.set_init_vehicle_load()
+        self.set_station_cap(station_cap)
+        self.set_vehicle_cap(vehicle_cap)
+        self.set_ideal_state(station_cap//6)
+
+        self.set_station_rates(stations)
+        self.set_time_matrix(stations)
+
+        self.set_init_vehicle_load(vehicle_cap//2)
         self.set_start_stations()
-        self.set_station_rates()
-        self.set_ideal_state(5)
         self.set_time_to_start()
 
         self.gen_ms = GenMs(self.fixed, self.dynamic)
         self.write_to_file()
 
-    def set_time_matrix(self):
-        time_cap = 15
+    def set_time_matrix(self, station_obj):
         matrix = np.zeros((self.n_stations, self.n_stations))
-        geographical_points = [(random.randint(0, time_cap), random.randint(0, time_cap)) for i in range(self.n_stations)]
         for i in range(self.n_stations-1):
             for j in range(i, self.n_stations-1):
                 if i == j:
                     continue
                 else:
-                    time_x = round(distance.euclidean(geographical_points[i], geographical_points[j]), 1)
+                    time_x = round(get_driving_time(station_obj[i-1].latitude, station_obj[i-1].longitude,
+                                                    station_obj[j-1].latitude, station_obj[j-1].longitude), 1)
                     matrix[i][j] = time_x
                     matrix[j][i] = time_x
         self.fixed.driving_times = matrix
 
     def set_time_to_start(self):
         self.dynamic.driving_to_start = [0] * self.n_vehicles
-        time_cap = 4
         for vehicle in self.fixed.vehicles:
-            self.dynamic.driving_to_start[vehicle] = round(random.random() * time_cap, 2)
+            self.dynamic.driving_to_start[vehicle] = round(vehicle*2+1, 2)
 
     def set_stations(self):
         self.fixed.stations = [i for i in range(self.n_stations)]
@@ -60,10 +60,10 @@ class Instance:
     def set_start_stations(self):
         start = []
         for i in range(self.n_vehicles):
-            station = random.randint(0, self.n_stations - 2)
-            while station in start:
-                station = random.randint(0, self.n_stations - 2)
-            start.append(station)
+            if self.n_stations > (i-2):
+                start.append(i+1)
+            else:
+                start.append(0)
         self.dynamic.start_stations = start
 
     def set_vehicle_cap(self, cap):
@@ -71,41 +71,26 @@ class Instance:
         for i in range(self.n_vehicles):
             self.fixed.vehicle_cap[i] = cap
 
-    def set_init_vehicle_load(self):
-        self.dynamic.init_vehicle_load = [random.randint(0, self.fixed.vehicle_cap[i]) for i in self.fixed.vehicles]
-
-    def set_init_station_load(self):
-        self.dynamic.init_flat_station_load = [0] * self.n_stations
-        self.dynamic.init_station_load = [0] * self.n_stations
-        for station in self.fixed.stations[1:-1]:
-            battery = random.randint(0, self.fixed.station_cap[station])
-            flat = random.randint(0, self.fixed.station_cap[station])
-            while battery + flat > self.fixed.station_cap[station]:
-                battery = random.randint(0, self.fixed.station_cap[station])
-                flat = random.randint(0, self.fixed.station_cap[station])
-            self.dynamic.init_station_load[station] = battery
-            self.dynamic.init_flat_station_load[station] = flat
+    def set_init_vehicle_load(self, load):
+        self.dynamic.init_vehicle_load = [load for i in self.fixed.vehicles]
 
     def set_station_cap(self, cap):
         self.fixed.station_cap = [0] * self.n_stations
         for i in self.fixed.stations[1:-1]:
             self.fixed.station_cap[i] = cap
 
-    def set_station_rates(self):
+    def set_station_rates(self, station_obj):
         self.dynamic.demand = [0] * self.n_stations
         self.dynamic.incoming_rate = [0] * self.n_stations
         self.dynamic.incoming_flat_rate = [0] * self.n_stations
+        self.dynamic.init_flat_station_load = [0] * self.n_stations
+        self.dynamic.init_station_load = [0] * self.n_stations
         for station in self.fixed.stations[1:-1]:
-            demand = round(random.random(), 2)
-            battery_rate = round(random.random(), 2)
-            flat_rate = round(random.random(), 2)
-            while demand < (battery_rate + flat_rate):
-                demand = round(random.random(), 2)
-                battery_rate = round(random.random(), 2)
-                flat_rate = round(random.random(), 2)
-            self.dynamic.demand[station] = demand
-            self.dynamic.incoming_rate[station] = battery_rate
-            self.dynamic.incoming_flat_rate[station] = flat_rate
+            self.dynamic.demand[station] = station_obj[station-1].demand
+            self.dynamic.incoming_rate[station] = station_obj[station-1].battery_rate
+            self.dynamic.incoming_flat_rate[station] = station_obj[station-1].flat_rate
+            self.dynamic.init_station_load[station] = station_obj[station-1].init_station_load
+            self.dynamic.init_flat_station_load[station] = station_obj[station-1].init_flat_station_load
 
     def set_ideal_state(self, ideal):
         self.dynamic.ideal_state = [0] * self.n_stations
@@ -113,7 +98,7 @@ class Instance:
             self.dynamic.ideal_state[station] = ideal
 
     def write_to_file(self):
-        f = open("../Input/input_params.txt", 'w')
+        f = open("Input/input_params.txt", 'w')
         f.write("------------ FIXED ------------------------ \n")
         f.write("self.stations = " + str(self.fixed.stations) + "\n")
         f.write("self.vehicles = " + str(self.fixed.vehicles) + "\n")
