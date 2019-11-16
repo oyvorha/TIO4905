@@ -1,17 +1,19 @@
 import json
 from Input.instance_generator import Instance
 from Input.station import Station
-
+from Model.gurobi_model import run_model
 
 with open("Data_processing/station.json", 'r') as f:
     stations = json.load(f)
 
 # INPUT VALUES
-n_instance = 100
-scenario = 'A'
-time_horizon = 10
+n_instance = 20
+scenario = 'B'
+time_horizon = 30
 n_vehicles = 2
 ideal_state = 5
+vehicle_cap = 10
+station_cap = 30
 
 
 def get_n_stations(n):
@@ -45,4 +47,7 @@ def check_demand(incoming_bat_rate, init_bat_load, dem, ideal):
 
 
 station_obj = get_n_stations(n_instance)
-Instance(len(station_obj), n_vehicles, time_horizon, station_obj)
+generated_instance = Instance(len(station_obj), n_vehicles, time_horizon, station_obj,
+                              vehicle_cap=vehicle_cap, station_cap=station_cap)
+
+run_model(generated_instance)
