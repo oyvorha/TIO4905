@@ -7,13 +7,15 @@ from Input.generate_Ms import GenMs
 
 class Instance:
 
-    def __init__(self, n_stations, n_vehicles, n_time_hor, stations, station_cap=30, vehicle_cap=10):
+    def __init__(self, n_stations, n_vehicles, n_time_hor, stations, scenario='A', initial_size=20, station_cap=30,
+                 vehicle_cap=10):
         self.n_stations = n_stations
         self.n_vehicles = n_vehicles
-        self.time_horizon = n_time_hor
 
         self.fixed = FixedFileVariables()
-        self.fixed.time_horizon = self.time_horizon
+        self.fixed.time_horizon = n_time_hor
+        self.fixed.demand_scenario = scenario
+        self.fixed.initial_size = initial_size
 
         self.dynamic = DynamicFileVariables()
 
