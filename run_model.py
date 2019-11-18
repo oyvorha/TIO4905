@@ -2,18 +2,20 @@ import json
 from Input.instance_generator import Instance
 from Input.station import Station
 from Model.gurobi_model import run_model
+from Output.save_output import save_output
+from visualize import visualize
 
 with open("Data_processing/station.json", 'r') as f:
     stations = json.load(f)
 
-# INPUT VALUES
-n_instance = 20
-scenario = 'B'
-time_horizon = 30
-n_vehicles = 2
-ideal_state = 5
-vehicle_cap = 10
-station_cap = 30
+models = []
+fixed = []
+dynamic = []
+
+instance_runs = [[7, 'A'], [10, 'A'], [15, 'A'], [5, 'B'], [10, 'B'], [15, 'B']]
+show_image = True
+
+depot = Station(59.9139, 10.7522, None, None, None, None, None, None, None)
 
 
 def get_n_stations(n):
@@ -46,10 +48,26 @@ def check_demand(incoming_bat_rate, init_bat_load, dem, ideal):
     return True
 
 
-station_obj = get_n_stations(n_instance)
-generated_instance = Instance(len(station_obj)+2, n_vehicles, time_horizon, station_obj,
-                              vehicle_cap=vehicle_cap, station_cap=station_cap)
+for i in range(len(instance_runs)):
 
-model = run_model(generated_instance)
+    # INPUT VALUES
+    n_instance = instance_runs[i][0]
+    scenario = instance_runs[i][1]
+    time_horizon = 10
+    n_vehicles = 2
+    ideal_state = 5
+    vehicle_cap = 10
+    station_cap = 30
 
-# save_output(model, generated_instance.fixed, generated_instance.dynamic)
+    station_obj = get_n_stations(n_instance)
+    station_obj.insert(0, depot)
+    generated_instance = Instance(len(station_obj)+1, n_vehicles, time_horizon, station_obj, scenario=scenario,
+                                  initial_size=n_instance, vehicle_cap=vehicle_cap, station_cap=station_cap)
+
+    model, time = run_model(generated_instance)
+    models.append([model, time])
+    fixed.append(generated_instance.fixed)
+    dynamic.append(generated_instance.dynamic)
+    visualize(model, generated_instance.fixed, image=show_image)
+
+save_output(models, fixed, dynamic)

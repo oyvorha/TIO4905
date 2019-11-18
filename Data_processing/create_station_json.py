@@ -19,7 +19,7 @@ def read_excel():
             init_load = round(battery_rate * float(row[scenario+'_start_load']), 2)
             init_flat_load = round(flat_rate * float(row[scenario + '_start_load']), 2)
             incoming_battery_rate = round(battery_rate * float(row[scenario + '_incoming'])/length_time_interval, 2)
-            incoming_flat_rate = 1 - incoming_battery_rate
+            incoming_flat_rate = round(flat_rate * float(row[scenario + '_incoming'])/length_time_interval, 2)
             outgoing_rate = round(float(row[scenario + '_outgoing_rate']) / length_time_interval, 2)
             demand = calculate_demand(float(row[scenario + '_outgoing_rate']), row[scenario+'_empty'])
             interval_scenarios[scenario] = [init_load, init_flat_load, incoming_battery_rate, incoming_flat_rate,

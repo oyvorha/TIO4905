@@ -1,7 +1,7 @@
 from gurobipy import *
 from Input.fixed_file_variables import FixedFileVariables
 from Input.dynamic_file_variables import DynamicFileVariables
-from visualize import draw_routes
+import time
 
 
 def run_model(instance, last_mode=False):
@@ -15,6 +15,7 @@ def run_model(instance, last_mode=False):
 
     try:
         m = Model("Bicycle")
+        start_time = time.time()
 
         # ------ SETS -----------------------------------------------------------------------------
         Stations = f.stations
@@ -204,43 +205,12 @@ def run_model(instance, last_mode=False):
                        - w_reward * (w_dev_reward * r_D.sum('*') - w_driving_times * t_f.sum('*')), GRB.MINIMIZE)
 
         m.optimize()
+        end_time = time.time()
 
-        # ------- VISUALIZE ------------------------------------------------------------------------------
-        route_dict = {}
-        for var in m.getVars():
-            if var.varName[0] == 'x' and var.x == 1:
-                var_1 = var.varName.split("[")[1]
-                var_list = var_1.split(",")
-                i = int(var_list[0])
-                j = int(var_list[1])
-                v = int(var_list[2][:-1])
-                if i != 0:
-                    t = float(m.getVarByName("t[{}]".format(i)).x)
-                else:
-                    t = float(m.getVarByName("t_D[{}]".format(v)).x)
-                if i in Swap_Stations:
-                    q = int(m.getVarByName("q[{},{}]".format(i, v)).x)
-                else:
-                    q = 0
-                dist = driving_times[i][j]
-                arch = [i, j, t, dist, q]
-                if v not in route_dict.keys():
-                    route_dict[v] = [arch]
-                else:
-                    route = route_dict[v]
-                    for i in range(len(route)):
-                        if route[i][-3] > t:
-                            route.insert(i, arch)
-                            break
-                        else:
-                            if i == len(route_dict[v]) - 1:
-                                route.append(arch)
-            print(var.varName, var.x)
-        draw_routes(route_dict, Stations)
-        print(route_dict)
-        print("Obj: ", m.objVal)
+        exec_time = end_time - start_time
+        print("Execution time was", exec_time)
 
-        return m
+        return m, exec_time
 
     except GurobiError:
         print("Error")
