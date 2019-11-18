@@ -43,18 +43,26 @@ def check_demand(incoming_bat_rate, init_bat_load, dem, ideal):
     return True
 
 
-instance_runs = [[7, 'A', 10], [10, 'A', 20], [15, 'A', 20], [5, 'B', 30], [10, 'B', 5], [15, 'B', 20]]
+# Format of one instance: [#Stations, scenario, time horizon, #vehicles, vehicle_cap, station_cap,
+# weight violation, weight deviation, weight reward, reward weight dev, reward weight time]
+instance_runs = [[7, 'A', 10, 2, 15, 30, 0.8, 0.1, 0.1, 0.8, 0.2], [7, 'A', 10, 2, 20, 30, 0.8, 0.1, 0.1, 0.8, 0.2],
+                 [7, 'B', 10, 2, 20, 30, 0.8, 0.1, 0.1, 0.8, 0.2], [10, 'A', 10, 2, 20, 30, 0.8, 0.1, 0.1, 0.8, 0.2]]
 
 for i in range(len(instance_runs)):
 
-    # INPUT VALUES
+    # ------- INPUT VALUES ----------
     n_instance = instance_runs[i][0]
     scenario = instance_runs[i][1]
     time_horizon = instance_runs[i][2]
-    n_vehicles = 2
-    ideal_state = 5
-    vehicle_cap = 10
-    station_cap = 30
+    n_vehicles = instance_runs[i][3]
+    vehicle_cap = instance_runs[i][4]
+    station_cap = instance_runs[i][5]
+    ideal_state = station_cap // 2
+    w_violation = instance_runs[i][6]
+    w_dev_obj = instance_runs[i][7]
+    w_reward = instance_runs[i][8]
+    w_dev_reward = instance_runs[i][9]
+    w_driving_time = instance_runs[i][10]
     show_image = True
 
     depot = Station(59.9139, 10.7522, None, None, None, None, None, None, None)
@@ -62,12 +70,15 @@ for i in range(len(instance_runs)):
     station_obj = get_n_stations(n_instance)
     station_obj.insert(0, depot)
     generated_instance = Instance(len(station_obj)+1, n_vehicles, time_horizon, station_obj, scenario=scenario,
-                                  initial_size=n_instance, vehicle_cap=vehicle_cap, station_cap=station_cap)
+                                  initial_size=n_instance, vehicle_cap=vehicle_cap, station_cap=station_cap,
+                                  ideal_state=ideal_state, w_violation=w_violation, w_dev_obj=w_dev_obj,
+                                  w_reward=w_reward, w_dev_reward=w_dev_reward, w_driving_time=w_driving_time)
 
     model, time = run_model(generated_instance)
     models.append([model, time])
     fixed.append(generated_instance.fixed)
     dynamic.append(generated_instance.dynamic)
+    station_objs.append(station_obj)
     visualize(model, generated_instance.fixed, image=show_image)
 
-save_output(models, fixed, dynamic)
+save_output(models, fixed, dynamic, station_objs)
