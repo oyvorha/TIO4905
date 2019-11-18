@@ -11,6 +11,7 @@ with open("Data_processing/station.json", 'r') as f:
 models = []
 fixed = []
 dynamic = []
+station_objs = []
 
 
 def get_n_stations(n):
