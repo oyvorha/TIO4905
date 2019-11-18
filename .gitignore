@@ -117,3 +117,6 @@ venv.bak/
 
 # json-files
 *.json
+
+# Excel-files
+*.xlsx

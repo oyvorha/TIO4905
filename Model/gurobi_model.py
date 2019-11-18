@@ -107,7 +107,8 @@ def run_model(instance, last_mode=False):
         m.addConstrs(t[i] + parking_time + handling_time * q.sum(i, '*') + driving_times[i][j]
                      - t[j] - M_1[i][j] * (1 - x.sum(i, j, '*')) <= 0 for i in Swap_Stations for j in Stations[1:])
         m.addConstrs(t[i] + parking_time + handling_time * q.sum(i, v) + driving_times[i][Stations[0]]
-                     - t_D[v] - M_1[i][j] * (1 - x.sum(i, Stations[0], v)) <= 0 for i in Swap_Stations for v in Vehicles)
+                     - t_D[v] - M_1[i][Stations[0]] * (1 - x.sum(i, Stations[0], v)) <= 0 for i in Swap_Stations
+                     for v in Vehicles)
         m.addConstrs(t_D[v] + parking_time + driving_times[Stations[0]][j]
                      - t[j] - M_1[0][j] * (1 - x.sum(Stations[0], j, v)) <= 0 for j in Stations[1:] for v in Vehicles)
         for v in Vehicles:

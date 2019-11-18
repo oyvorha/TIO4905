@@ -8,7 +8,8 @@ from Input.generate_Ms import GenMs
 class Instance:
 
     def __init__(self, n_stations, n_vehicles, n_time_hor, stations, scenario='A', initial_size=20, station_cap=30,
-                 vehicle_cap=10):
+                 vehicle_cap=10, ideal_state=5, w_violation=0.8, w_dev_obj=0.1, w_reward=0.1, w_dev_reward=0.8,
+                 w_driving_time=0.2):
         self.n_stations = n_stations
         self.n_vehicles = n_vehicles
 
@@ -16,6 +17,11 @@ class Instance:
         self.fixed.time_horizon = n_time_hor
         self.fixed.demand_scenario = scenario
         self.fixed.initial_size = initial_size
+        self.fixed.w_violation = w_violation
+        self.fixed.w_dev_obj = w_dev_obj
+        self.fixed.w_reward = w_reward
+        self.fixed.w_dev_reward = w_dev_reward
+        self.fixed.w_driving_time = w_driving_time
 
         self.dynamic = DynamicFileVariables()
 
@@ -23,7 +29,7 @@ class Instance:
         self.set_vehicles()
         self.set_station_cap(station_cap)
         self.set_vehicle_cap(vehicle_cap)
-        self.set_ideal_state(station_cap//6)
+        self.set_ideal_state(ideal_state)
 
         self.set_station_rates(stations)
         self.set_time_matrix(stations)
@@ -42,16 +48,17 @@ class Instance:
                 if i == j:
                     continue
                 else:
-                    time_x = round(get_driving_time(station_obj[i].latitude, station_obj[i].longitude,
-                                                    station_obj[j].latitude, station_obj[j].longitude), 1)
+                    google_response = get_driving_time(station_obj[i].latitude, station_obj[i].longitude,
+                                                    station_obj[j].latitude, station_obj[j].longitude)
+                    time_x = round(google_response[0], 1)
                     matrix[i][j] = time_x
                     matrix[j][i] = time_x
+                    station_obj[i].address = google_response[1]
+                    station_obj[j].address = google_response[2]
         self.fixed.driving_times = matrix
 
     def set_time_to_start(self):
         self.dynamic.driving_to_start = [0] * self.n_vehicles
-        for vehicle in self.fixed.vehicles:
-            self.dynamic.driving_to_start[vehicle] = round(vehicle*2+1, 2)
 
     def set_stations(self):
         self.fixed.stations = [i for i in range(self.n_stations)]
