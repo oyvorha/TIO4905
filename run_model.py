@@ -12,11 +12,6 @@ models = []
 fixed = []
 dynamic = []
 
-instance_runs = [[7, 'A'], [10, 'A'], [15, 'A'], [5, 'B'], [10, 'B'], [15, 'B']]
-show_image = True
-
-depot = Station(59.9139, 10.7522, None, None, None, None, None, None, None)
-
 
 def get_n_stations(n):
     station_objects = []
@@ -48,16 +43,21 @@ def check_demand(incoming_bat_rate, init_bat_load, dem, ideal):
     return True
 
 
+instance_runs = [[7, 'A', 10], [10, 'A', 20], [15, 'A', 20], [5, 'B', 30], [10, 'B', 5], [15, 'B', 20]]
+
 for i in range(len(instance_runs)):
 
     # INPUT VALUES
     n_instance = instance_runs[i][0]
     scenario = instance_runs[i][1]
-    time_horizon = 10
+    time_horizon = instance_runs[i][2]
     n_vehicles = 2
     ideal_state = 5
     vehicle_cap = 10
     station_cap = 30
+    show_image = True
+
+    depot = Station(59.9139, 10.7522, None, None, None, None, None, None, None)
 
     station_obj = get_n_stations(n_instance)
     station_obj.insert(0, depot)
