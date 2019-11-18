@@ -3,6 +3,7 @@ from Input.instance_generator import Instance
 from Input.station import Station
 from Model.gurobi_model import run_model
 from Output.save_output import save_output
+from visualize import visualize
 
 with open("Data_processing/station.json", 'r') as f:
     stations = json.load(f)
@@ -67,5 +68,6 @@ for i in range(len(instance_runs)):
     models.append([model, time])
     fixed.append(generated_instance.fixed)
     dynamic.append(generated_instance.dynamic)
+    visualize(model, generated_instance.fixed, image=show_image)
 
 save_output(models, fixed, dynamic)

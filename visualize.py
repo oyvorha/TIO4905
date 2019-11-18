@@ -31,3 +31,40 @@ def get_color(color_map, edge):
     for i in range(len(color_map)):
         if edge in color_map[i]:
             return colors[i]
+
+
+def visualize(m, fixed, image=True):
+    route_dict = {}
+    for var in m.getVars():
+        if var.varName[0] == 'x' and var.x == 1:
+            var_1 = var.varName.split("[")[1]
+            var_list = var_1.split(",")
+            i = int(var_list[0])
+            j = int(var_list[1])
+            v = int(var_list[2][:-1])
+            if i != 0:
+                t = float(m.getVarByName("t[{}]".format(i)).x)
+            else:
+                t = float(m.getVarByName("t_D[{}]".format(v)).x)
+            if i in fixed.stations[1:-1]:
+                q = int(m.getVarByName("q[{},{}]".format(i, v)).x)
+            else:
+                q = 0
+            dist = fixed.driving_times[i][j]
+            arch = [i, j, t, dist, q]
+            if v not in route_dict.keys():
+                route_dict[v] = [arch]
+            else:
+                route = route_dict[v]
+                for i in range(len(route)):
+                    if route[i][-3] > t:
+                        route.insert(i, arch)
+                        break
+                    else:
+                        if i == len(route_dict[v]) - 1:
+                            route.append(arch)
+        print(var.varName, var.x)
+    if image:
+        draw_routes(route_dict, fixed.stations)
+    print(route_dict)
+    print("Obj: ", m.objVal)
