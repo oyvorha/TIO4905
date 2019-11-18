@@ -42,8 +42,8 @@ class Instance:
                 if i == j:
                     continue
                 else:
-                    time_x = round(get_driving_time(station_obj[i-1].latitude, station_obj[i-1].longitude,
-                                                    station_obj[j-1].latitude, station_obj[j-1].longitude), 1)
+                    time_x = round(get_driving_time(station_obj[i].latitude, station_obj[i].longitude,
+                                                    station_obj[j].latitude, station_obj[j].longitude), 1)
                     matrix[i][j] = time_x
                     matrix[j][i] = time_x
         self.fixed.driving_times = matrix
@@ -88,11 +88,11 @@ class Instance:
         self.dynamic.init_flat_station_load = [0] * self.n_stations
         self.dynamic.init_station_load = [0] * self.n_stations
         for station in self.fixed.stations[1:-1]:
-            self.dynamic.demand[station] = station_obj[station-1].demand
-            self.dynamic.incoming_rate[station] = station_obj[station-1].battery_rate
-            self.dynamic.incoming_flat_rate[station] = station_obj[station-1].flat_rate
-            self.dynamic.init_station_load[station] = station_obj[station-1].init_station_load
-            self.dynamic.init_flat_station_load[station] = station_obj[station-1].init_flat_station_load
+            self.dynamic.demand[station] = station_obj[station].demand
+            self.dynamic.incoming_rate[station] = station_obj[station].battery_rate
+            self.dynamic.incoming_flat_rate[station] = station_obj[station].flat_rate
+            self.dynamic.init_station_load[station] = station_obj[station].init_station_load
+            self.dynamic.init_flat_station_load[station] = station_obj[station].init_flat_station_load
 
     def set_ideal_state(self, ideal):
         self.dynamic.ideal_state = [0] * self.n_stations

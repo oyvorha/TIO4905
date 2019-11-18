@@ -11,7 +11,10 @@ models = []
 fixed = []
 dynamic = []
 
-instance_runs = [[5, 'A'], [10, 'A'], [15, 'A'], [5, 'B'], [10, 'B'], [15, 'B']]
+instance_runs = [[7, 'A'], [10, 'A'], [15, 'A'], [5, 'B'], [10, 'B'], [15, 'B']]
+show_image = True
+
+depot = Station(59.9139, 10.7522, None, None, None, None, None, None, None)
 
 
 def get_n_stations(n):
@@ -56,10 +59,12 @@ for i in range(len(instance_runs)):
     station_cap = 30
 
     station_obj = get_n_stations(n_instance)
-    generated_instance = Instance(len(station_obj)+2, n_vehicles, time_horizon, station_obj, scenario=scenario,
+    station_obj.insert(0, depot)
+    generated_instance = Instance(len(station_obj)+1, n_vehicles, time_horizon, station_obj, scenario=scenario,
                                   initial_size=n_instance, vehicle_cap=vehicle_cap, station_cap=station_cap)
 
-    models.append(run_model(generated_instance))
+    model, time = run_model(generated_instance)
+    models.append([model, time])
     fixed.append(generated_instance.fixed)
     dynamic.append(generated_instance.dynamic)
 
