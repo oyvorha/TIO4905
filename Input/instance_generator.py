@@ -42,16 +42,17 @@ class Instance:
                 if i == j:
                     continue
                 else:
-                    time_x = round(get_driving_time(station_obj[i].latitude, station_obj[i].longitude,
-                                                    station_obj[j].latitude, station_obj[j].longitude), 1)
+                    google_response = get_driving_time(station_obj[i].latitude, station_obj[i].longitude,
+                                                    station_obj[j].latitude, station_obj[j].longitude)
+                    time_x = round(google_response[0], 1)
                     matrix[i][j] = time_x
                     matrix[j][i] = time_x
+                    station_obj[i].address = google_response[1]
+                    station_obj[j].address = google_response[2]
         self.fixed.driving_times = matrix
 
     def set_time_to_start(self):
         self.dynamic.driving_to_start = [0] * self.n_vehicles
-        for vehicle in self.fixed.vehicles:
-            self.dynamic.driving_to_start[vehicle] = round(vehicle*2+1, 2)
 
     def set_stations(self):
         self.fixed.stations = [i for i in range(self.n_stations)]

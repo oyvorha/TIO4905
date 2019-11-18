@@ -12,3 +12,4 @@ class Station:
         self.outgoing_rate = outgoing
         self.demand = demand
         self.ideal_state = ideal_state
+        self.address = None
