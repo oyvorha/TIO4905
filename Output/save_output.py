@@ -42,3 +42,21 @@ def save_output(model, time, fixed, dynamic, station_obj):
         df.to_excel(writer, index=False, sheet_name=key)
         writer.save()
         df_keys.append(key)
+
+    time_df = pd.DataFrame(columns=['Init #stations', 'No. of stations', 'No. of vehicles', 'Demand scenario',
+                                    'Time Horizon', 'Solution time', 'Gap'])
+
+    new_row_time = {'Init #stations': fixed.initial_size, 'No. of stations': len(fixed.stations) - 2,
+                    'No. of vehicles': len(fixed.vehicles), 'Demand scenario': fixed.demand_scenario,
+                    'Time Horizon': fixed.time_horizon, 'Solution time': time, 'Gap': model.mipgap}
+
+    time_df = time_df.append(new_row_time, ignore_index=True)
+
+    if 'solution_time' in df_keys:
+        start_row = writer.sheets['solution_time'].max_row
+        time_df.to_excel(writer, startrow=start_row, index=False, header=False, sheet_name='solution_time')
+        writer.save()
+    else:
+        time_df.to_excel(writer, index=False, sheet_name='solution_time')
+        writer.save()
+        df_keys.append('solution_time')
