@@ -8,11 +8,6 @@ from visualize import visualize
 with open("Data_processing/station.json", 'r') as f:
     stations = json.load(f)
 
-models = []
-fixed = []
-dynamic = []
-station_objs = []
-
 
 def get_n_stations(n):
     station_objects = []
@@ -76,10 +71,6 @@ for i in range(len(instance_runs)):
                                   w_reward=w_reward, w_dev_reward=w_dev_reward, w_driving_time=w_driving_time)
 
     model, time = run_model(generated_instance)
-    models.append([model, time])
-    fixed.append(generated_instance.fixed)
-    dynamic.append(generated_instance.dynamic)
-    station_objs.append(station_obj)
     visualize(model, generated_instance.fixed, image=show_image)
 
-save_output(models, fixed, dynamic, station_objs)
+    save_output(model, time, generated_instance.fixed, generated_instance.dynamic, station_obj)
