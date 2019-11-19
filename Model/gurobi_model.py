@@ -77,7 +77,6 @@ def run_model(instance, last_mode=False):
         l_V = m.addVars({(i, v) for i in Stations for v in Vehicles}, vtype=GRB.INTEGER, lb=0, name="l_V")
         s_B = m.addVars({i for i in Swap_Stations}, vtype=GRB.CONTINUOUS, lb=0, name="s_B")
         s_F = m.addVars({i for i in Swap_Stations}, vtype=GRB.CONTINUOUS, lb=0, name="s_F")
-        s_V = m.addVars({v for v in Vehicles}, vtype=GRB.CONTINUOUS, lb=0, name="s_V")
         v_S = m.addVars({i for i in Swap_Stations}, vtype=GRB.CONTINUOUS, lb=0, name="v_S")
         d = m.addVars({i for i in Swap_Stations}, vtype=GRB.CONTINUOUS, lb=0, name="d")
         delta = m.addVars({i for i in Swap_Stations}, vtype=GRB.BINARY, name="delta")
@@ -193,10 +192,6 @@ def run_model(instance, last_mode=False):
         m.addConstrs(d[i] >= s_B[i] - ideal_state[i] for i in Swap_Stations)
 
         # ------- OBJECTIVE CONSTRAINTS ------------------------------------------------------------------
-        m.addConstrs(s_V[v] >= l_V[(i, v)] - q[(i, v)]-(
-                1-x[(i, Stations[-1], v)]) * vehicle_cap[v] for i in Swap_Stations for v in Vehicles)
-        m.addConstrs(s_V[v] <= l_V[(i, v)] - q[(i, v)] + (
-                1 - x[(i, Stations[-1], v)]) * vehicle_cap[v] for i in Swap_Stations for v in Vehicles)
         m.addConstrs(r_D[i] <= q.sum(i, '*') + station_cap[i] * (1 - delta[i])
                      for i in Swap_Stations)
         m.addConstrs(r_D[i] <= delta[i] * station_cap[i] for i in Swap_Stations)
