@@ -8,11 +8,6 @@ from visualize import visualize
 with open("Data_processing/station.json", 'r') as f:
     stations = json.load(f)
 
-models = []
-fixed = []
-dynamic = []
-station_objs = []
-
 
 def get_n_stations(n):
     station_objects = []
@@ -46,8 +41,13 @@ def check_demand(incoming_bat_rate, init_bat_load, dem, ideal):
 
 # Format of one instance: [#Stations, scenario, time horizon, #vehicles, vehicle_cap, station_cap,
 # weight violation, weight deviation, weight reward, reward weight dev, reward weight time]
-instance_runs = [[7, 'A', 10, 2, 15, 30, 0.8, 0.1, 0.1, 0.8, 0.2], [7, 'A', 10, 2, 20, 30, 0.8, 0.1, 0.1, 0.8, 0.2],
-                 [7, 'B', 10, 2, 20, 30, 0.8, 0.1, 0.1, 0.8, 0.2], [10, 'A', 10, 2, 20, 30, 0.8, 0.1, 0.1, 0.8, 0.2]]
+instance_runs = []
+
+for station in range(5, 40, 5):
+    for vehicle in range(1, 5):
+        for time in range(5, 40, 5):
+            for scenario in ['A', 'D']:
+                instance_runs.append([station, scenario, time, vehicle, 30, 20, 0.6, 0.3, 0.1, 0.8, 0.2])
 
 for i in range(len(instance_runs)):
 
@@ -76,10 +76,6 @@ for i in range(len(instance_runs)):
                                   w_reward=w_reward, w_dev_reward=w_dev_reward, w_driving_time=w_driving_time)
 
     model, time = run_model(generated_instance)
-    models.append([model, time])
-    fixed.append(generated_instance.fixed)
-    dynamic.append(generated_instance.dynamic)
-    station_objs.append(station_obj)
     visualize(model, generated_instance.fixed, image=show_image)
 
-save_output(models, fixed, dynamic, station_objs)
+    save_output(model, time, generated_instance.fixed, generated_instance.dynamic, station_obj)

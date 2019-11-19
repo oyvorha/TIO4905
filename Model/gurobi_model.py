@@ -16,6 +16,7 @@ def run_model(instance, last_mode=False):
 
     try:
         m = Model("Bicycle")
+        m.setParam('TimeLimit', 60*60)
         start_time = time.time()
 
         # ------ SETS -----------------------------------------------------------------------------
@@ -143,6 +144,7 @@ def run_model(instance, last_mode=False):
 
         m.addConstrs(q.sum(i, '*') <= l_F[i] for i in Swap_Stations)
         m.addConstrs(q[(i, v)] - vehicle_cap[v] * x.sum(i, '*', v) <= 0 for i in Swap_Stations for v in Vehicles)
+        m.addConstrs(q[(j, v)] - x.sum('*', j, v) >= 0 for j in Swap_Stations for v in Vehicles)
 
         # ------- VIOLATION CONSTRAINTS ------------------------------------------------------------------
         m.addConstrs(t[i] <= time_horizon + M_6[i] * delta[i] for i in Swap_Stations)
