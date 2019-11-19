@@ -198,9 +198,7 @@ def run_model(instance, last_mode=False):
         m.addConstrs(r_D[i] <= q.sum(i, '*') + station_cap[i] * (1 - delta[i])
                      for i in Swap_Stations)
         m.addConstrs(r_D[i] <= delta[i] * station_cap[i] for i in Swap_Stations)
-        m.addConstrs(t_f[v] - t[i] + time_horizon + M_14[v] * (1 - delta[i]) >= 0
-                     for i in Swap_Stations for v in Vehicles)
-        m.addConstrs(t_f[v] - t[i] + time_horizon - M_14[v] * (1 - delta[i]) <= 0
+        m.addConstrs(t_f[v] - t[i] + time_horizon + M_14[v] * (1 - x[(i, Stations[-1], v)]) >= 0
                      for i in Swap_Stations for v in Vehicles)
 
         # ------- OBJECTIVE ------------------------------------------------------------------------------
