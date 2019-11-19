@@ -41,8 +41,13 @@ def check_demand(incoming_bat_rate, init_bat_load, dem, ideal):
 
 # Format of one instance: [#Stations, scenario, time horizon, #vehicles, vehicle_cap, station_cap,
 # weight violation, weight deviation, weight reward, reward weight dev, reward weight time]
-instance_runs = [[7, 'A', 10, 2, 15, 30, 0.8, 0.1, 0.1, 0.8, 0.2], [7, 'A', 10, 2, 20, 30, 0.8, 0.1, 0.1, 0.8, 0.2],
-                 [7, 'B', 10, 2, 20, 30, 0.8, 0.1, 0.1, 0.8, 0.2], [10, 'A', 10, 2, 20, 30, 0.8, 0.1, 0.1, 0.8, 0.2]]
+instance_runs = []
+
+for station in range(5, 40, 5):
+    for vehicle in range(1, 5):
+        for time in range(5, 40, 5):
+            for scenario in ['A', 'D']:
+                instance_runs.append([station, scenario, time, vehicle, 30, 20, 0.6, 0.3, 0.1, 0.8, 0.2])
 
 for i in range(len(instance_runs)):
 
