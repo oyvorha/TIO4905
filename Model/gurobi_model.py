@@ -2,6 +2,7 @@ from gurobipy import *
 from Input.fixed_file_variables import FixedFileVariables
 from Input.dynamic_file_variables import DynamicFileVariables
 import time
+import sys
 
 
 def run_model(instance, last_mode=False):
@@ -46,6 +47,7 @@ def run_model(instance, last_mode=False):
         M_12 = f.M_12
         M_13 = f.M_13
         M_14 = f.M_14
+        M_15 = f.station_cap
 
         w_dev_reward = f.w_dev_reward
         w_driving_times = f.w_driving_time
@@ -178,8 +180,8 @@ def run_model(instance, last_mode=False):
                                                                                            ) for i in Swap_Stations)
         m.addConstrs(l_F[i] >= s_F[i] + incoming_flat_rate[i] * (t[i] - time_horizon) - M_10[i] * (1 - delta[i]
                                                                                              ) for i in Swap_Stations)
-        m.addConstrs(l_B[i] + station_cap[i] * omega[i] <= station_cap[i] for i in Swap_Stations)
-        m.addConstrs(1 - omega[i] <= l_B[i] for i in Swap_Stations)
+        m.addConstrs(l_B[i] - M_15[i] * (1-omega[i]) <= 0 for i in Swap_Stations)
+        m.addConstrs(sys.float_info.epsilon - omega[i] <= l_B[i] for i in Swap_Stations)
         m.addConstrs((v_S[i] - v_SF[i]) - M_11[i] * (omega[i] - delta[i] + 1) <= 0 for i in Swap_Stations)
         m.addConstrs(v_SF[i] <= M_12[i] * delta[i] for i in Swap_Stations)
         m.addConstrs(v_SF[i] - M_13[i] * (1 - delta[i]) <= v_S[i] for i in Swap_Stations)
@@ -196,9 +198,7 @@ def run_model(instance, last_mode=False):
         m.addConstrs(r_D[i] <= q.sum(i, '*') + station_cap[i] * (1 - delta[i])
                      for i in Swap_Stations)
         m.addConstrs(r_D[i] <= delta[i] * station_cap[i] for i in Swap_Stations)
-        m.addConstrs(t_f[v] - t[i] + time_horizon + M_14[v] * (1 - delta[i]) >= 0
-                     for i in Swap_Stations for v in Vehicles)
-        m.addConstrs(t_f[v] - t[i] + time_horizon - M_14[v] * (1 - delta[i]) <= 0
+        m.addConstrs(t_f[v] - t[i] + time_horizon + M_14[v] * (1 - x[(i, Stations[-1], v)]) >= 0
                      for i in Swap_Stations for v in Vehicles)
 
         # ------- OBJECTIVE ------------------------------------------------------------------------------
