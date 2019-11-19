@@ -2,7 +2,7 @@
 class Station:
 
     def __init__(self, longitude, latitude, bat_load, flat_load, incoming_bat_rate, flat_rate,
-                 outgoing, demand, ideal_state):
+                 outgoing, demand, ideal_state, id):
         self.longitude = longitude
         self.latitude = latitude
         self.init_station_load = bat_load
@@ -13,3 +13,4 @@ class Station:
         self.demand = demand
         self.ideal_state = ideal_state
         self.address = None
+        self.id = id

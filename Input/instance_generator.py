@@ -1,7 +1,7 @@
 from Input.fixed_file_variables import FixedFileVariables
 from Input.dynamic_file_variables import DynamicFileVariables
 import numpy as np
-from Data_processing.Google_API import get_driving_time
+from Data_processing.Google_API import get_driving_time_from_id
 from Input.generate_Ms import GenMs
 
 
@@ -48,8 +48,7 @@ class Instance:
                 if i == j:
                     continue
                 else:
-                    google_response = get_driving_time(station_obj[i].latitude, station_obj[i].longitude,
-                                                    station_obj[j].latitude, station_obj[j].longitude)
+                    google_response = get_driving_time_from_id(station_obj[i].id, station_obj[j].id)
                     time_x = round(google_response[0], 1)
                     matrix[i][j] = time_x
                     matrix[j][i] = time_x

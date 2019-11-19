@@ -12,24 +12,23 @@ with open("Data_processing/station.json", 'r') as f:
 def get_n_stations(n):
     station_objects = []
     counter = 0
-    for station in stations.items():
+    for id, station in stations.items():
         counter += 1
         if counter > n:
             break
-        latitude = float(station[1][0])
-        longitude = float(station[1][1])
-        init_battery_load = station[1][2][scenario][0]
-        init_flat_load = station[1][2][scenario][1]
-        incoming_battery_rate = station[1][2][scenario][2]
-        incoming_flat_rate = station[1][2][scenario][3]
-        outgoing_rate = station[1][2][scenario][4]
-        demand = station[1][2][scenario][5]
+        latitude = float(station[0])
+        longitude = float(station[1])
+        init_battery_load = station[2][scenario][0]
+        init_flat_load = station[2][scenario][1]
+        incoming_battery_rate = station[2][scenario][2]
+        incoming_flat_rate = station[2][scenario][3]
+        outgoing_rate = station[2][scenario][4]
+        demand = station[2][scenario][5]
         if check_demand(incoming_battery_rate, init_battery_load, demand, ideal_state):
             obj = Station(latitude, longitude, init_battery_load, init_flat_load
                           , incoming_battery_rate, incoming_flat_rate, outgoing_rate,
-                          demand, ideal_state)
+                          demand, ideal_state, id)
             station_objects.append(obj)
-    print(len(station_objects))
     return station_objects
 
 
@@ -66,7 +65,7 @@ for i in range(len(instance_runs)):
     w_driving_time = instance_runs[i][10]
     show_image = True
 
-    depot = Station(59.9139, 10.7522, None, None, None, None, None, None, None)
+    depot = Station(59.93791, 10.73048, None, None, None, None, None, None, None, 465)
 
     station_obj = get_n_stations(n_instance)
     station_obj.insert(0, depot)
