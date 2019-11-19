@@ -16,6 +16,7 @@ def run_model(instance, last_mode=False):
 
     try:
         m = Model("Bicycle")
+        m.setParam('TimeLimit', 60*60)
         start_time = time.time()
 
         # ------ SETS -----------------------------------------------------------------------------
