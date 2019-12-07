@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 
 
-def draw_routes(dict_routes, stations):
+def draw_routes(dict_routes, stations, time_hor):
     g = nx.DiGraph()
     battery_labels = {}
     for s in stations:
@@ -23,6 +23,7 @@ def draw_routes(dict_routes, stations):
     nx.draw_networkx_edges(g, pos, edge_color=[get_color(color_map, edge) for edge in g.edges()])
     nx.draw_networkx_labels(g, pos, font_color="black", labels=battery_labels)
     nx.draw_networkx_edge_labels(g, pos, edge_labels=arc_weight)
+    plt.title("Time horizon = "+str(time_hor))
     plt.show()
 
 
@@ -65,6 +66,6 @@ def visualize(m, fixed, image=True):
                             route.append(arch)
         print(var.varName, var.x)
     if image:
-        draw_routes(route_dict, fixed.stations)
+        draw_routes(route_dict, fixed.stations, fixed.time_horizon)
     print(route_dict)
     print("Obj: ", m.objVal)
