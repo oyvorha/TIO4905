@@ -11,9 +11,8 @@ with open("Data_processing/station.json", 'r') as f:
 
 def get_n_stations(n):
     station_objects = []
-    counter = 0
+    counter = 1
     for id, station in stations.items():
-        counter += 1
         if counter > n:
             break
         latitude = float(station[0])
@@ -29,6 +28,7 @@ def get_n_stations(n):
                           , incoming_battery_rate, incoming_flat_rate, outgoing_rate,
                           demand, ideal_state, id)
             station_objects.append(obj)
+            counter += 1
     return station_objects
 
 
