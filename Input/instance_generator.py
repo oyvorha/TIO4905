@@ -9,7 +9,7 @@ class Instance:
 
     def __init__(self, n_stations, n_vehicles, n_time_hor, stations, scenario='A', initial_size=20, station_cap=30,
                  vehicle_cap=10, ideal_state=5, w_violation=0.8, w_dev_obj=0.1, w_reward=0.1, w_dev_reward=0.8,
-                 w_driving_time=0.2):
+                 w_driving_time=0.2, start=None):
         self.n_stations = n_stations
         self.n_vehicles = n_vehicles
 
@@ -35,7 +35,7 @@ class Instance:
         self.set_time_matrix(stations)
 
         self.set_init_vehicle_load(vehicle_cap//2)
-        self.set_start_stations()
+        self.set_start_stations(start)
         self.set_time_to_start()
 
         self.gen_ms = GenMs(self.fixed, self.dynamic)
@@ -65,13 +65,17 @@ class Instance:
     def set_vehicles(self):
         self.fixed.vehicles = [i for i in range(self.n_vehicles)]
 
-    def set_start_stations(self):
+    def set_start_stations(self, start_sta):
         start = []
-        for i in range(self.n_vehicles):
-            if self.n_stations > (i-2):
-                start.append(i+1)
-            else:
-                start.append(0)
+        if not start_sta:
+            for i in range(self.n_vehicles):
+                if self.n_stations > (i - 2):
+                    start.append(i + 1)
+                else:
+                    start.append(0)
+        else:
+            for i in range(self.n_vehicles):
+                start.append(i)
         self.dynamic.start_stations = start
 
     def set_vehicle_cap(self, cap):

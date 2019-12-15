@@ -40,13 +40,9 @@ def check_demand(incoming_bat_rate, init_bat_load, dem, ideal):
 
 # Format of one instance: [#Stations, scenario, time horizon, #vehicles, vehicle_cap, station_cap,
 # weight violation, weight deviation, weight reward, reward weight dev, reward weight time]
-instance_runs = []
+instance_runs = list()
 
-for station in range(5, 40, 5):
-    for vehicle in range(1, 5):
-        for time in range(5, 40, 5):
-            for scenario in ['A', 'D']:
-                instance_runs.append([station, scenario, time, vehicle, 30, 20, 0.6, 0.3, 0.1, 0.8, 0.2])
+instance_runs.append([10, 'A', 25, 1, 30, 20, 0.6, 0.3, 0.2, 0.8, 0.2, 1])
 
 for i in range(len(instance_runs)):
 
@@ -63,6 +59,7 @@ for i in range(len(instance_runs)):
     w_reward = instance_runs[i][8]
     w_dev_reward = instance_runs[i][9]
     w_driving_time = instance_runs[i][10]
+    start = instance_runs[i][11]
     show_image = True
 
     depot = Station(59.93791, 10.73048, None, None, None, None, None, None, None, 465)
@@ -72,7 +69,8 @@ for i in range(len(instance_runs)):
     generated_instance = Instance(len(station_obj)+1, n_vehicles, time_horizon, station_obj, scenario=scenario,
                                   initial_size=n_instance, vehicle_cap=vehicle_cap, station_cap=station_cap,
                                   ideal_state=ideal_state, w_violation=w_violation, w_dev_obj=w_dev_obj,
-                                  w_reward=w_reward, w_dev_reward=w_dev_reward, w_driving_time=w_driving_time)
+                                  w_reward=w_reward, w_dev_reward=w_dev_reward, w_driving_time=w_driving_time,
+                                  start=start)
 
     model, time = run_model(generated_instance)
     visualize(model, generated_instance.fixed, image=show_image)

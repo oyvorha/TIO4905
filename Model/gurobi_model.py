@@ -104,6 +104,8 @@ def run_model(instance, last_mode=False):
                 if i == j:
                     m.addConstrs(x[(i, j, v)] <= 0 for v in Vehicles)
         m.addConstrs(x[(Stations[0], Stations[-1], v)] <= 0 for v in Vehicles)
+        # for s in start_stations:
+        #    m.addConstr(x[(s, 8, 0)] == 1)
 
         # Time Constraints
         m.addConstrs(t[i] + parking_time + handling_time * q.sum(i, '*') + driving_times[i][j]
