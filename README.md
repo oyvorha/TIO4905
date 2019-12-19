@@ -11,7 +11,7 @@ The model is run from **run_model.py** where the following input-parameters shou
 **time_horizon** = the planning horizon for the subproblem \
 **vehicle_cap** = the capacity of batteries for the vehicles \
 **station_cap** = the number of locks on the stations \
-**ideal_state** = the ideal number of battery bikes at each station \
+**ideal_state** = the ideal number of battery bikes at each station 
 
 An overview of the stations in the BSS with related data should be placed at the user root. This file should be an
 .xlsx file with the following columns: \
