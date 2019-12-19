@@ -4,7 +4,7 @@ Optimization model with Gurobi
 This model implements the static and deterministic subproblem of the
 *Dynamic Stochastic Bicycle Battery Swap Routing Problem*. The test instance data is collected from Oslo City Bike.
 
-The model is run from **run_model.py** where the following input-parameters should be set:
+The model is run from **run_model.py** where the following input-parameters should be set: \
 **n_instances** = the number of stations to include \
 **scenario** = set to either 'A', 'B', 'C', 'D' or 'E', representing the demand at a specified interval of time of day \
 **n_vehicles** = the number of service vehicles operated \
