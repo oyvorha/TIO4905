@@ -21,6 +21,8 @@ class Instance:
         self.set_station_rates(stations)
         self.set_time_matrix(stations)
         self.set_ideal_state(ideal_state)
+        self.set_time_to_start()
+        self.set_start_stations()
 
         self.gen_ms = GenMs(self.fixed, self.dynamic)
 
@@ -56,14 +58,30 @@ class Instance:
         for i in self.fixed.stations[1:-1]:
             self.fixed.station_cap[i] = cap
 
+    def set_time_to_start(self):
+        self.dynamic.driving_to_start = [0] * self.n_vehicles
+
+    def set_start_stations(self):
+        start = []
+        for i in range(self.n_vehicles):
+            if self.n_stations > (i-2):
+                start.append(i+1)
+            else:
+                start.append(0)
+        self.dynamic.start_stations = start
+
     def set_station_rates(self, station_obj):
         self.dynamic.demand = [0] * self.n_stations
         self.dynamic.incoming_rate = [0] * self.n_stations
         self.dynamic.incoming_flat_rate = [0] * self.n_stations
+        self.dynamic.init_flat_station_load = [0] * self.n_stations
+        self.dynamic.init_station_load = [0] * self.n_stations
         for station in self.fixed.stations[1:-1]:
             self.dynamic.demand[station] = station_obj[station].demand
             self.dynamic.incoming_rate[station] = station_obj[station].battery_rate
             self.dynamic.incoming_flat_rate[station] = station_obj[station].flat_rate
+            self.dynamic.init_station_load[station] = station_obj[station].init_station_load
+            self.dynamic.init_flat_station_load[station] = station_obj[station].init_flat_station_load
 
     def set_ideal_state(self, ideal):
         self.dynamic.ideal_state = [0] * self.n_stations

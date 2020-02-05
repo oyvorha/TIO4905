@@ -10,17 +10,16 @@ from Input.dynamic_file_variables import DynamicFileVariables
 
 class Subproblem():
 
-    def __init__(self, station_id_list, demand, init_bikes, init_veh, start_st,
-                 time_to_start):
+    def __init__(self, station_id_list, demand, init_bikes, init_veh, start_st, time_to_start):
         self.fixed = FixedFileVariables()
         self.dynamic = DynamicFileVariables()
 
         self.station_id_list = station_id_list
-        self.dynamic.demand = demand
-        self.dynamic.init_station_load = init_bikes
-        self.dynamic.init_vehicle_load = init_veh
-        self.dynamic.start_stations = start_st
-        self.dynamic.time_to_start = time_to_start
+        # self.dynamic.demand = demand
+        # self.dynamic.init_station_load = init_bikes
+        # self.dynamic.init_vehicle_load = init_veh
+        # self.dynamic.start_stations = start_st
+        # self.dynamic.time_to_start = time_to_start
 
         self.n_instance = 10
         self.vehicle_cap = 30
