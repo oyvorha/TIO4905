@@ -1,5 +1,4 @@
-from Input.fixed_file_variables import FixedFileVariables
-from Input.dynamic_file_variables import DynamicFileVariables
+
 import numpy as np
 from Data_processing.Google_API import get_driving_time_from_id
 from Input.generate_Ms import GenMs
@@ -7,39 +6,28 @@ from Input.generate_Ms import GenMs
 
 class Instance:
 
-    def __init__(self, n_stations, n_vehicles, n_time_hor, stations, scenario='A', initial_size=20, station_cap=30,
-                 vehicle_cap=10, ideal_state=5, w_violation=0.8, w_dev_obj=0.1, w_reward=0.1, w_dev_reward=0.8,
-                 w_driving_time=0.2):
-        self.n_stations = n_stations
-        self.n_vehicles = n_vehicles
+    def __init__(self, stations, fixed, dynamic, station_cap, vehicle_cap, ideal_state, save=False):
+        self.n_stations = len(stations)
+        self.n_vehicles = len(dynamic.init_vehicle_load)
 
-        self.fixed = FixedFileVariables()
-        self.fixed.time_horizon = n_time_hor
-        self.fixed.demand_scenario = scenario
-        self.fixed.initial_size = initial_size
-        self.fixed.w_violation = w_violation
-        self.fixed.w_dev_obj = w_dev_obj
-        self.fixed.w_reward = w_reward
-        self.fixed.w_dev_reward = w_dev_reward
-        self.fixed.w_driving_time = w_driving_time
-
-        self.dynamic = DynamicFileVariables()
-
+        self.fixed = fixed
+        self.dynamic = dynamic
         self.set_stations()
         self.set_vehicles()
+
         self.set_station_cap(station_cap)
         self.set_vehicle_cap(vehicle_cap)
-        self.set_ideal_state(ideal_state)
 
         self.set_station_rates(stations)
         self.set_time_matrix(stations)
-
-        self.set_init_vehicle_load(vehicle_cap//2)
-        self.set_start_stations()
+        self.set_ideal_state(ideal_state)
         self.set_time_to_start()
+        self.set_start_stations()
 
         self.gen_ms = GenMs(self.fixed, self.dynamic)
-        self.write_to_file()
+
+        if save:
+            self.write_to_file()
 
     def set_time_matrix(self, station_obj):
         matrix = np.zeros((self.n_stations, self.n_stations))
@@ -56,14 +44,22 @@ class Instance:
                     station_obj[j].address = google_response[2]
         self.fixed.driving_times = matrix
 
-    def set_time_to_start(self):
-        self.dynamic.driving_to_start = [0] * self.n_vehicles
-
     def set_stations(self):
         self.fixed.stations = [i for i in range(self.n_stations)]
 
     def set_vehicles(self):
         self.fixed.vehicles = [i for i in range(self.n_vehicles)]
+
+    def set_vehicle_cap(self, cap):
+        self.fixed.vehicle_cap = [cap] * self.n_vehicles
+
+    def set_station_cap(self, cap):
+        self.fixed.station_cap = [0] * self.n_stations
+        for i in self.fixed.stations[1:-1]:
+            self.fixed.station_cap[i] = cap
+
+    def set_time_to_start(self):
+        self.dynamic.driving_to_start = [0] * self.n_vehicles
 
     def set_start_stations(self):
         start = []
@@ -73,19 +69,6 @@ class Instance:
             else:
                 start.append(0)
         self.dynamic.start_stations = start
-
-    def set_vehicle_cap(self, cap):
-        self.fixed.vehicle_cap = [0] * self.n_vehicles
-        for i in range(self.n_vehicles):
-            self.fixed.vehicle_cap[i] = cap
-
-    def set_init_vehicle_load(self, load):
-        self.dynamic.init_vehicle_load = [load for i in self.fixed.vehicles]
-
-    def set_station_cap(self, cap):
-        self.fixed.station_cap = [0] * self.n_stations
-        for i in self.fixed.stations[1:-1]:
-            self.fixed.station_cap[i] = cap
 
     def set_station_rates(self, station_obj):
         self.dynamic.demand = [0] * self.n_stations

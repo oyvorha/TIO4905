@@ -46,4 +46,3 @@ class FixedFileVariables:
         self.w_reward = 0.3
 
         self.demand_scenario = 'A'
-        self.initial_size = 10
